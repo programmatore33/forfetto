@@ -1,5 +1,14 @@
 🗣️ Language: [Italiano](#italiano) | [English](#english)
 
+# FORFETTO
+
+> Scopri quanto ti resta davvero in tasca.
+
+<p align="center">
+	<img src="./assets/logo.png" alt="Forfetto logo" width="200">
+  
+</p>
+
 ## Italiano
 
 Sei in regime forfettario e vuoi capire quanto ti resta in tasca dopo tasse e spese?

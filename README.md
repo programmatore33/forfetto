@@ -5,8 +5,8 @@
 > Scopri quanto ti resta davvero in tasca.
 
 <p align="center">
-	<img src="./assets/forfetto_logo.png" alt="Forfetto logo" width="200">
-  
+	<img src="./assets/forfetto-hero.png" alt="Forfetto — Scopri quanto ti resta davvero in tasca." width="100%" loading="lazy" decoding="async">
+
 </p>
 
 ## Italiano

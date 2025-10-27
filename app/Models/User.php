@@ -92,4 +92,3 @@ class User extends Authenticatable
         return (date('Y') - $this->activity_start_year) < 5;
     }
 }
-}

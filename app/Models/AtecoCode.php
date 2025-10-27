@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Traits\HasUserScope;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AtecoCode extends Model
 {
-    use HasUserScope;
+    use HasFactory, HasUserScope;
 
     protected $fillable = [
         'user_id',

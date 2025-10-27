@@ -17,6 +17,10 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('vat_number', 11)->unique()->nullable();
+            $table->string('tax_code', 16)->nullable();
+            $table->decimal('tax_rate', 4, 2)->default(15.00)->comment('15% or 5% first 5 years');
+            $table->year('activity_start_year')->nullable()->comment('To calculate reduced rate');
             $table->rememberToken();
             $table->timestamps();
         });

@@ -2,14 +2,12 @@
 
 namespace App\Traits;
 
-use App\Jobs\CreateDefaultExpenseCategories;
-
 /**
  * Trait HasUserInitialization
- * 
+ *
  * Manages automatic initialization of default data
  * when a new user is created.
- * 
+ *
  * Usage:
  * class User extends Authenticatable
  * {
@@ -20,13 +18,12 @@ trait HasUserInitialization
 {
     protected static function bootHasUserInitialization()
     {
-        static::created(function ($user) {
-            // Dispatch job to create default expense categories
-            CreateDefaultExpenseCategories::dispatch($user);
-            
-            // Here you can add other initialization jobs
+        static::created(function () {
+            // Here you can add initialization jobs for user-specific data
             // example: CreateDefaultAtecoCode::dispatch($user);
             // example: SendWelcomeEmail::dispatch($user);
+            
+            // Note: Expense categories are now global, no need to create them per user
         });
     }
 
@@ -36,7 +33,8 @@ trait HasUserInitialization
      */
     public function initializeDefaults(): void
     {
-        CreateDefaultExpenseCategories::dispatchSync($this);
+        // Add any user-specific initialization logic here
+        // Expense categories are now global and don't need initialization
     }
 
     /**
@@ -44,19 +42,8 @@ trait HasUserInitialization
      */
     public function hasCompletedInitialization(): bool
     {
-        return $this->expenseCategories()->exists();
-    }
-
-    /**
-     * Force re-initialization of default data
-     * WARNING: Deletes existing data
-     */
-    public function reinitializeDefaults(): void
-    {
-        // Remove existing categories
-        $this->expenseCategories()->delete();
-        
-        // Recreate default categories
-        $this->initializeDefaults();
+        // Since we don't create user-specific data anymore, always return true
+        // Or implement other checks for user-specific data if needed
+        return true;
     }
 }

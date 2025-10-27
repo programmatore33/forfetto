@@ -19,7 +19,6 @@ class Expense extends Model
         'supplier',
         'amount',
         'vat_amount',
-        'document_path',
         'is_deductible',
         'notes',
     ];

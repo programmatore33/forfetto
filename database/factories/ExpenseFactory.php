@@ -83,7 +83,6 @@ class ExpenseFactory extends Factory
             'supplier' => fake()->boolean(80) ? fake()->randomElement($suppliers) : null,
             'amount' => $amount,
             'vat_amount' => $vatAmount,
-            'document_path' => fake()->boolean(40) ? 'receipts/' . fake()->uuid() . '.pdf' : null,
             'is_deductible' => fake()->boolean(85), // 85% deductible
             'notes' => fake()->boolean(25) ? fake('it_IT')->sentence() : null,
         ];
@@ -150,16 +149,6 @@ class ExpenseFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'expense_date' => fake()->dateTimeBetween('-3 months', 'now')->format('Y-m-d'),
-        ]);
-    }
-
-    /**
-     * Expense with receipt
-     */
-    public function withReceipt(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'document_path' => 'receipts/' . fake()->uuid() . '.pdf',
         ]);
     }
 

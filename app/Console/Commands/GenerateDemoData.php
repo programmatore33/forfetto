@@ -34,16 +34,17 @@ class GenerateDemoData extends Command
                 $this->info('🗄️ Database reset completed');
             } else {
                 $this->info('Operation cancelled');
+
                 return 0;
             }
         }
 
         $userCount = (int) $this->option('users');
-        
+
         $this->info("🚀 Generating demo data for {$userCount} users...");
-        
+
         $this->call(DemoDataSeeder::class);
-        
+
         $this->newLine();
         $this->info('✅ Demo data generation completed!');
         $this->info('');

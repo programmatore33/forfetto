@@ -19,8 +19,8 @@ class CustomerFactory extends Factory
     {
         $companyTypes = ['S.R.L.', 'S.P.A.', 'S.N.C.', 'S.A.S.', 'DITTA INDIVIDUALE'];
         $cities = ['Roma', 'Milano', 'Napoli', 'Torino', 'Palermo', 'Genova', 'Bologna', 'Firenze', 'Bari', 'Catania'];
-        
-        $businessName = fake('it_IT')->company() . ' ' . fake()->randomElement($companyTypes);
+
+        $businessName = fake('it_IT')->company().' '.fake()->randomElement($companyTypes);
 
         return [
             'user_id' => User::factory(),
@@ -40,7 +40,7 @@ class CustomerFactory extends Factory
     }
 
     /**
-     * Generate a realistic Italian VAT number
+     * Generate a realistic Italian VAT number.
      */
     private function generateVatNumber(): string
     {
@@ -48,34 +48,35 @@ class CustomerFactory extends Factory
     }
 
     /**
-     * Generate a realistic Italian tax code
+     * Generate a realistic Italian tax code.
      */
     private function generateTaxCode(): string
     {
         $consonants = 'BCDFGHJKLMNPQRSTVWXYZ';
         $vowels = 'AEIOU';
-        
+
         // Simple tax code generation
-        return substr(str_shuffle($consonants), 0, 6) . 
-               fake()->numberBetween(10, 99) . 
-               substr(str_shuffle('ABCDEHLMPRST'), 0, 1) . 
-               str_pad((string) fake()->numberBetween(1, 71), 2, '0', STR_PAD_LEFT) . 
-               substr(str_shuffle($consonants), 0, 1) . 
-               fake()->numberBetween(100, 999) . 
-               substr(str_shuffle($consonants . '0123456789'), 0, 1);
+        return substr(str_shuffle($consonants), 0, 6).
+               fake()->numberBetween(10, 99).
+               substr(str_shuffle('ABCDEHLMPRST'), 0, 1).
+               str_pad((string) fake()->numberBetween(1, 71), 2, '0', STR_PAD_LEFT).
+               substr(str_shuffle($consonants), 0, 1).
+               fake()->numberBetween(100, 999).
+               substr(str_shuffle($consonants.'0123456789'), 0, 1);
     }
 
     /**
-     * Generate Italian phone number
+     * Generate Italian phone number.
      */
     private function generateItalianPhone(): string
     {
         $prefixes = ['02', '06', '081', '011', '091', '010', '051', '055', '080', '095'];
-        return fake()->randomElement($prefixes) . fake()->numerify('#######');
+
+        return fake()->randomElement($prefixes).fake()->numerify('#######');
     }
 
     /**
-     * Customer with PEC and SDI (electronic invoicing ready)
+     * Customer with PEC and SDI (electronic invoicing ready).
      */
     public function electronicInvoicing(): static
     {
@@ -86,12 +87,12 @@ class CustomerFactory extends Factory
     }
 
     /**
-     * Small business customer (no VAT)
+     * Small business customer (no VAT).
      */
     public function smallBusiness(): static
     {
         return $this->state(fn (array $attributes) => [
-            'business_name' => fake('it_IT')->firstName() . ' ' . fake('it_IT')->lastName(),
+            'business_name' => fake('it_IT')->firstName().' '.fake('it_IT')->lastName(),
             'vat_number' => null,
             'pec' => null,
             'sdi_code' => null,
@@ -99,12 +100,12 @@ class CustomerFactory extends Factory
     }
 
     /**
-     * Large company customer
+     * Large company customer.
      */
     public function largeCompany(): static
     {
         return $this->state(fn (array $attributes) => [
-            'business_name' => fake('it_IT')->company() . ' S.P.A.',
+            'business_name' => fake('it_IT')->company().' S.P.A.',
             'pec' => fake('it_IT')->safeEmail(),
             'sdi_code' => strtoupper(fake()->bothify('???????')),
         ]);

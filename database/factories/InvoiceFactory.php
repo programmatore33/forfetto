@@ -44,7 +44,7 @@ class InvoiceFactory extends Factory
             'invoice_number' => $this->generateInvoiceNumber(),
             'issue_date' => fake()->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
             'payment_date' => fake()->boolean(70) ? fake()->dateTimeBetween('-6 months', 'now')->format('Y-m-d') : null,
-            'description' => fake()->randomElement($services) . ' - ' . fake('it_IT')->sentence(6),
+            'description' => fake()->randomElement($services).' - '.fake('it_IT')->sentence(6),
             'amount' => $amount,
             'withholding_tax' => $withholdingTax,
             'net_amount' => $netAmount,
@@ -55,17 +55,18 @@ class InvoiceFactory extends Factory
     }
 
     /**
-     * Generate realistic Italian invoice number
+     * Generate realistic Italian invoice number.
      */
     private function generateInvoiceNumber(): string
     {
         $year = date('Y');
         $number = fake()->numberBetween(1, 999);
-        return "{$year}/" . str_pad((string) $number, 3, '0', STR_PAD_LEFT);
+
+        return "{$year}/".str_pad((string) $number, 3, '0', STR_PAD_LEFT);
     }
 
     /**
-     * Invoice that is paid
+     * Invoice that is paid.
      */
     public function paid(): static
     {
@@ -77,7 +78,7 @@ class InvoiceFactory extends Factory
     }
 
     /**
-     * Invoice that is unpaid
+     * Invoice that is unpaid.
      */
     public function unpaid(): static
     {
@@ -89,13 +90,14 @@ class InvoiceFactory extends Factory
     }
 
     /**
-     * Invoice with withholding tax
+     * Invoice with withholding tax.
      */
     public function withWithholding(): static
     {
         return $this->state(function (array $attributes) {
             $amount = $attributes['amount'];
             $withholdingTax = $amount * 0.20;
+
             return [
                 'withholding_tax' => $withholdingTax,
                 'net_amount' => $amount - $withholdingTax,
@@ -104,7 +106,7 @@ class InvoiceFactory extends Factory
     }
 
     /**
-     * Invoice without withholding tax
+     * Invoice without withholding tax.
      */
     public function withoutWithholding(): static
     {
@@ -117,13 +119,14 @@ class InvoiceFactory extends Factory
     }
 
     /**
-     * High value invoice
+     * High value invoice.
      */
     public function highValue(): static
     {
         return $this->state(function (array $attributes) {
             $amount = fake()->randomFloat(2, 3000, 15000);
             $withholdingTax = fake()->boolean(50) ? $amount * 0.20 : 0;
+
             return [
                 'amount' => $amount,
                 'withholding_tax' => $withholdingTax,
@@ -133,7 +136,7 @@ class InvoiceFactory extends Factory
     }
 
     /**
-     * Recent invoice (last 3 months)
+     * Recent invoice (last 3 months).
      */
     public function recent(): static
     {

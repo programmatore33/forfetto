@@ -44,7 +44,7 @@ class AtecoCodeFactory extends Factory
     }
 
     /**
-     * Indicate that this ATECO code is the primary activity
+     * Indicate that this ATECO code is the primary activity.
      */
     public function primary(): static
     {
@@ -54,7 +54,7 @@ class AtecoCodeFactory extends Factory
     }
 
     /**
-     * Indicate that this ATECO code is secondary
+     * Indicate that this ATECO code is secondary.
      */
     public function secondary(): static
     {
@@ -64,7 +64,7 @@ class AtecoCodeFactory extends Factory
     }
 
     /**
-     * Generate software development ATECO
+     * Generate software development ATECO.
      */
     public function software(): static
     {
@@ -76,7 +76,7 @@ class AtecoCodeFactory extends Factory
     }
 
     /**
-     * Generate artisan ATECO (higher coefficient)
+     * Generate artisan ATECO (higher coefficient).
      */
     public function artisan(): static
     {

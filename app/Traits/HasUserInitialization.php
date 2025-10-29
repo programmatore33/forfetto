@@ -3,7 +3,7 @@
 namespace App\Traits;
 
 /**
- * Trait HasUserInitialization
+ * Trait HasUserInitialization.
  *
  * Manages automatic initialization of default data
  * when a new user is created.
@@ -22,14 +22,14 @@ trait HasUserInitialization
             // Here you can add initialization jobs for user-specific data
             // example: CreateDefaultAtecoCode::dispatch($user);
             // example: SendWelcomeEmail::dispatch($user);
-            
+
             // Note: Expense categories are now global, no need to create them per user
         });
     }
 
     /**
      * Manually initialize default data for the user
-     * Useful for existing users or testing
+     * Useful for existing users or testing.
      */
     public function initializeDefaults(): void
     {
@@ -38,7 +38,7 @@ trait HasUserInitialization
     }
 
     /**
-     * Check if user has completed initialization
+     * Check if user has completed initialization.
      */
     public function hasCompletedInitialization(): bool
     {

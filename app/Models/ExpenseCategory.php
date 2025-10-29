@@ -20,7 +20,7 @@ class ExpenseCategory extends Model
     ];
 
     /**
-     * Scope to get only global (default) categories
+     * Scope to get only global (default) categories.
      */
     public function scopeGlobal(Builder $query): Builder
     {
@@ -28,7 +28,7 @@ class ExpenseCategory extends Model
     }
 
     /**
-     * Scope to get only user-specific categories
+     * Scope to get only user-specific categories.
      */
     public function scopeForUser(Builder $query, int $userId): Builder
     {
@@ -36,18 +36,18 @@ class ExpenseCategory extends Model
     }
 
     /**
-     * Scope to get all available categories for a user (global + user-specific)
+     * Scope to get all available categories for a user (global + user-specific).
      */
     public function scopeAvailableForUser(Builder $query, int $userId): Builder
     {
         return $query->where(function ($q) use ($userId) {
             $q->whereNull('user_id')
-              ->orWhere('user_id', $userId);
+                ->orWhere('user_id', $userId);
         });
     }
 
     /**
-     * Check if this is a global category
+     * Check if this is a global category.
      */
     public function isGlobal(): bool
     {
@@ -55,7 +55,7 @@ class ExpenseCategory extends Model
     }
 
     /**
-     * Get the user that owns the category
+     * Get the user that owns the category.
      */
     public function user(): BelongsTo
     {
@@ -63,7 +63,7 @@ class ExpenseCategory extends Model
     }
 
     /**
-     * Get the expenses for this category
+     * Get the expenses for this category.
      */
     public function expenses(): HasMany
     {

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('color', 7)->default('#6B7280')->comment('For UI (e.g., #3B82F6)');
             $table->timestamps();
-            
+
             // Unique constraint: either global category (user_id is null) or user-specific category
             $table->unique(['user_id', 'name'], 'unique_user_category');
             $table->index('user_id');

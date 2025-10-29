@@ -23,7 +23,7 @@ return new class extends Migration
             $table->boolean('is_deductible')->default(true);
             $table->text('notes')->nullable();
             $table->timestamps();
-            
+
             $table->index('user_id');
             $table->index('expense_date');
             $table->index('expense_category_id');

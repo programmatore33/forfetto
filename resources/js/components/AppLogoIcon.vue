@@ -13,9 +13,9 @@ defineProps<Props>();
 </script>
 
 <template>
-    <div class="w-8 h-7">
-        <img 
-            src="/logo.svg" 
+    <div class="h-7 w-8">
+        <img
+            src="/logo.svg"
             alt="Forfetto Logo"
             :class="className"
             v-bind="$attrs"

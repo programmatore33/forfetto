@@ -13,7 +13,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable, HasUserInitialization;
+    use HasFactory, HasUserInitialization, Notifiable, TwoFactorAuthenticatable;
 
     /**
      * The attributes that are mass assignable.
@@ -85,7 +85,7 @@ class User extends Authenticatable
 
     public function isEligibleForReducedRate(): bool
     {
-        if (!$this->activity_start_year) {
+        if (! $this->activity_start_year) {
             return false;
         }
 

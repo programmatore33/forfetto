@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('sdi_code', 7)->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
-            
+
             $table->index('user_id');
         });
     }

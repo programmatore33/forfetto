@@ -89,7 +89,7 @@ class ExpenseFactory extends Factory
     }
 
     /**
-     * Software expense
+     * Software expense.
      */
     public function software(): static
     {
@@ -106,7 +106,7 @@ class ExpenseFactory extends Factory
     }
 
     /**
-     * Transport expense
+     * Transport expense.
      */
     public function transport(): static
     {
@@ -123,12 +123,13 @@ class ExpenseFactory extends Factory
     }
 
     /**
-     * High value expense
+     * High value expense.
      */
     public function highValue(): static
     {
         return $this->state(function (array $attributes) {
             $amount = fake()->randomFloat(2, 1000, 5000);
+
             return [
                 'amount' => $amount,
                 'vat_amount' => $amount * 0.22,
@@ -143,7 +144,7 @@ class ExpenseFactory extends Factory
     }
 
     /**
-     * Recent expense (last 3 months)
+     * Recent expense (last 3 months).
      */
     public function recent(): static
     {
@@ -153,7 +154,7 @@ class ExpenseFactory extends Factory
     }
 
     /**
-     * Non-deductible expense
+     * Non-deductible expense.
      */
     public function nonDeductible(): static
     {

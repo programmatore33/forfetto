@@ -61,15 +61,15 @@
     --color-sidebar-ring: var(--sidebar-ring);
 
     /* Colori personalizzati Forfetto */
-    --color-forfetto-primary: #4CAF50; /* Verde menta */
-    --color-forfetto-secondary: #FFB300; /* Giallo caldo */
-    --color-forfetto-background: #F9FAFB; /* Grigio chiarissimo */
-    --color-forfetto-text: #2E2E2E; /* Grigio scuro */
+    --color-forfetto-primary: #4caf50; /* Verde menta */
+    --color-forfetto-secondary: #ffb300; /* Giallo caldo */
+    --color-forfetto-background: #f9fafb; /* Grigio chiarissimo */
+    --color-forfetto-text: #2e2e2e; /* Grigio scuro */
     --color-forfetto-accent: #009688; /* Verde acqua */
-    --color-forfetto-success: #4CAF50; /* Verde per successo */
-    --color-forfetto-warning: #FFB300; /* Giallo per avvisi */
-    --color-forfetto-income: #4CAF50; /* Verde per entrate */
-    --color-forfetto-expense: #FF5722; /* Rosso per spese */
+    --color-forfetto-success: #4caf50; /* Verde per successo */
+    --color-forfetto-warning: #ffb300; /* Giallo per avvisi */
+    --color-forfetto-income: #4caf50; /* Verde per entrate */
+    --color-forfetto-expense: #ff5722; /* Rosso per spese */
 }
 
 /*
@@ -146,7 +146,9 @@
     --popover-foreground: hsl(220 9% 95%);
     --primary: hsl(122 39% 49%); /* Verde menta */
     --primary-foreground: hsl(0 0% 18%);
-    --secondary: hsl(42 100% 45%); /* Giallo leggermente più scuro per dark mode */
+    --secondary: hsl(
+        42 100% 45%
+    ); /* Giallo leggermente più scuro per dark mode */
     --secondary-foreground: hsl(0 0% 18%);
     --muted: hsl(220 9% 15%);
     --muted-foreground: hsl(220 9% 65%);

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('profitability_coeff', 5, 2)->comment('e.g: 78.00 (78%)');
             $table->boolean('is_primary')->default(false)->comment('Main activity');
             $table->timestamps();
-            
+
             $table->index('user_id');
         });
     }

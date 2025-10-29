@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\ExpenseCategory;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -40,7 +39,7 @@ class ExpenseCategoryFactory extends Factory
     }
 
     /**
-     * Create a software category
+     * Create a software category.
      */
     public function software(): static
     {
@@ -52,7 +51,7 @@ class ExpenseCategoryFactory extends Factory
     }
 
     /**
-     * Create a custom category with specific attributes
+     * Create a custom category with specific attributes.
      */
     public function withName(string $name): static
     {

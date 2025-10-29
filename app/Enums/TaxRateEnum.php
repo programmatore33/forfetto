@@ -9,7 +9,7 @@ enum TaxRateEnum: string
 
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::REDUCED => '5% (Primi 5 anni)',
             self::STANDARD => '15% (Standard)',
         };
@@ -23,7 +23,7 @@ enum TaxRateEnum: string
     public static function options(): array
     {
         return collect(self::cases())
-            ->mapWithKeys(fn($case) => [$case->value => $case->label()])
+            ->mapWithKeys(fn ($case) => [$case->value => $case->label()])
             ->toArray();
     }
 }

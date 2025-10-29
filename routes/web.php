@@ -12,15 +12,13 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->name('dashboard');
+        return Inertia::render('Dashboard');
+    })->name('dashboard');
 
-// Route per testare la palette colori (solo in development)
-Route::get('colors', function () {
-    return Inertia::render('ColorPalette');
-})->name('colors');
+    // Route per testare la palette colori (solo in development)
+    Route::get('colors', function () {
+        return Inertia::render('ColorPalette');
+    })->name('colors');
 });
-
-
 
 require __DIR__.'/settings.php';

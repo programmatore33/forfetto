@@ -8,7 +8,6 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\User;
-use App\Services\ExpenseCategoryService;
 use Illuminate\Database\Seeder;
 
 class DemoDataSeeder extends Seeder
@@ -180,8 +179,27 @@ class DemoDataSeeder extends Seeder
         $categories = $user->expenseCategories;
 
         if ($categories->isEmpty()) {
-            // Create default categories using the service
-            ExpenseCategoryService::createDefaultCategories($user);
+            // Create default categories using the factory
+            $defaultCategories = [
+                ['name' => 'Software', 'description' => 'Software e servizi digitali', 'color' => '#3B82F6'],
+                ['name' => 'Hardware', 'description' => 'Attrezzature e dispositivi', 'color' => '#10B981'],
+                ['name' => 'Formazione', 'description' => 'Corsi e certificazioni', 'color' => '#8B5CF6'],
+                ['name' => 'Marketing', 'description' => 'Pubblicità e promozione', 'color' => '#F59E0B'],
+                ['name' => 'Ufficio', 'description' => 'Materiale da ufficio', 'color' => '#6B7280'],
+                ['name' => 'Trasporti', 'description' => 'Viaggi e carburante', 'color' => '#EF4444'],
+                ['name' => 'Consulenze', 'description' => 'Consulenze professionali', 'color' => '#14B8A6'],
+                ['name' => 'Altro', 'description' => 'Spese varie', 'color' => '#64748B'],
+            ];
+
+            foreach ($defaultCategories as $categoryData) {
+                ExpenseCategory::factory()->create([
+                    'user_id' => $user->id,
+                    'name' => $categoryData['name'],
+                    'description' => $categoryData['description'],
+                    'color' => $categoryData['color'],
+                ]);
+            }
+
             // Reload categories after creation
             $categories = $user->fresh()->expenseCategories;
         }

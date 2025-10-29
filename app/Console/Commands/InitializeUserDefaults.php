@@ -22,7 +22,9 @@ class InitializeUserDefaults extends Command
      *
      * @var string
      */
-    protected $description = 'Initialize default data for users (expense categories, etc.)';    /**
+    protected $description = 'Initialize default data for users (expense categories, etc.)';
+
+    /**
      * Execute the console command.
      */
     public function handle()
@@ -37,6 +39,7 @@ class InitializeUserDefaults extends Command
             $this->initializeAllUsers($force);
         } else {
             $this->error('Specify --user-id=ID or --all to proceed');
+
             return 1;
         }
 
@@ -46,33 +49,35 @@ class InitializeUserDefaults extends Command
     private function initializeUser(int $userId, bool $force = false): void
     {
         $user = User::find($userId);
-        
-        if (!$user) {
+
+        if (! $user) {
             $this->error("User with ID {$userId} not found");
+
             return;
         }
 
-        if (!$force && $user->hasCompletedInitialization()) {
+        if (! $force && $user->hasCompletedInitialization()) {
             $this->warn("User {$user->name} (ID: {$userId}) already has initialized data. Use --force to override");
+
             return;
         }
 
         $this->info("Initializing user: {$user->name} (ID: {$userId})");
-        
+
         if ($force) {
             $user->reinitializeDefaults();
-            $this->info("✅ Re-initialization completed");
+            $this->info('✅ Re-initialization completed');
         } else {
             $user->initializeDefaults();
-            $this->info("✅ Initialization completed");
+            $this->info('✅ Initialization completed');
         }
     }
 
     private function initializeAllUsers(bool $force = false): void
     {
         $query = User::query();
-        
-        if (!$force) {
+
+        if (! $force) {
             // Only users that don't have initialized data yet
             $query->whereDoesntHave('expenseCategories');
         }
@@ -81,6 +86,7 @@ class InitializeUserDefaults extends Command
 
         if ($users->isEmpty()) {
             $this->info('No users to initialize found');
+
             return;
         }
 

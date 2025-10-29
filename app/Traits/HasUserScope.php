@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Trait HasUserScope
- * 
+ * Trait HasUserScope.
+ *
  * Automatically applies Global Scope to filter records by user_id
  * and automatically assigns user_id when creating new records.
- * 
+ *
  * Usage:
  * class MyModel extends Model
  * {
@@ -30,15 +30,15 @@ trait HasUserScope
 
         // Automatically assign user_id when creating a new record
         static::creating(function ($model) {
-            if (Auth::check() && !$model->user_id) {
+            if (Auth::check() && ! $model->user_id) {
                 $model->user_id = Auth::id();
             }
         });
     }
 
     /**
-     * Temporarily remove Global Scope to get all records
-     * 
+     * Temporarily remove Global Scope to get all records.
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public static function withoutUserScope()
@@ -47,9 +47,8 @@ trait HasUserScope
     }
 
     /**
-     * Get records of a specific user (admin only)
-     * 
-     * @param int $userId
+     * Get records of a specific user (admin only).
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public static function forUser(int $userId)

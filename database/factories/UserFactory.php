@@ -61,7 +61,7 @@ class UserFactory extends Factory
     }
 
     /**
-     * Generate a realistic Italian VAT number
+     * Generate a realistic Italian VAT number.
      */
     private function generateVatNumber(): string
     {
@@ -69,44 +69,44 @@ class UserFactory extends Factory
     }
 
     /**
-     * Generate a realistic Italian tax code
+     * Generate a realistic Italian tax code.
      */
     private function generateTaxCode(): string
     {
         $consonants = 'BCDFGHJKLMNPQRSTVWXYZ';
         $vowels = 'AEIOU';
-        
+
         // Surname (3 consonants)
         $surname = substr(str_shuffle($consonants), 0, 3);
-        
+
         // Name (3 consonants/vowels)
-        $name = substr(str_shuffle($consonants), 0, 2) . substr(str_shuffle($vowels), 0, 1);
-        
+        $name = substr(str_shuffle($consonants), 0, 2).substr(str_shuffle($vowels), 0, 1);
+
         // Year (2 digits)
         $year = fake()->numberBetween(50, 99);
-        
+
         // Month (letter)
         $months = 'ABCDEHLMPRST';
         $month = $months[fake()->numberBetween(0, 11)];
-        
+
         // Day and gender (2 digits)
         $day = fake()->numberBetween(1, 31);
         if (fake()->boolean()) { // Female
             $day += 40;
         }
         $day = str_pad((string) $day, 2, '0', STR_PAD_LEFT);
-        
+
         // Municipality (4 characters)
-        $municipality = substr(str_shuffle($consonants), 0, 1) . fake()->numberBetween(100, 999);
-        
+        $municipality = substr(str_shuffle($consonants), 0, 1).fake()->numberBetween(100, 999);
+
         // Check digit
-        $checkDigit = substr(str_shuffle($consonants . '0123456789'), 0, 1);
-        
-        return $surname . $name . $year . $month . $day . $municipality . $checkDigit;
+        $checkDigit = substr(str_shuffle($consonants.'0123456789'), 0, 1);
+
+        return $surname.$name.$year.$month.$day.$municipality.$checkDigit;
     }
 
     /**
-     * User with reduced tax rate (5%)
+     * User with reduced tax rate (5%).
      */
     public function reducedRate(): static
     {
@@ -117,7 +117,7 @@ class UserFactory extends Factory
     }
 
     /**
-     * User with standard tax rate (15%)
+     * User with standard tax rate (15%).
      */
     public function standardRate(): static
     {

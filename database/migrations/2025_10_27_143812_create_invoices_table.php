@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('payment_method', 50)->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
-            
+
             $table->index('user_id');
             $table->index('customer_id');
             $table->index('ateco_code_id');

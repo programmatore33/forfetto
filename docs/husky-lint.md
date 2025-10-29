@@ -8,25 +8,28 @@ Il progetto utilizza **Husky** e **lint-staged** per eseguire automaticamente co
 
 Quando fai un commit, vengono eseguiti automaticamente i seguenti controlli:
 
-### File JavaScript/TypeScript/Vue (*.js, *.ts, *.vue)
+### File JavaScript/TypeScript/Vue (_.js, _.ts, \*.vue)
+
 - **ESLint**: Controlla e corregge automaticamente problemi di stile e possibili errori
 - **Prettier**: Formatta automaticamente il codice secondo le regole configurate
 
-### File PHP (*.php)
+### File PHP (\*.php)
+
 - **Laravel Pint**: Applica le regole di formattazione PSR-12 e Laravel
 
 ## Come funziona
 
 1. Quando esegui `git commit`, Husky intercetta il comando
 2. Viene eseguito `lint-staged` che:
-   - Identifica solo i file modificati/aggiunti (staged)
-   - Applica i tool appropriati (ESLint, Prettier, Pint) solo a quei file
-   - Se tutto va bene, il commit procede
-   - Se ci sono errori non correggibili automaticamente, il commit viene bloccato
+    - Identifica solo i file modificati/aggiunti (staged)
+    - Applica i tool appropriati (ESLint, Prettier, Pint) solo a quei file
+    - Se tutto va bene, il commit procede
+    - Se ci sono errori non correggibili automaticamente, il commit viene bloccato
 
 ## Configurazione
 
 ### Package.json
+
 ```json
 "lint-staged": {
   "*.{js,ts,vue}": [
@@ -40,6 +43,7 @@ Quando fai un commit, vengono eseguiti automaticamente i seguenti controlli:
 ```
 
 ### Husky Hook (.husky/pre-commit)
+
 ```bash
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
@@ -51,6 +55,7 @@ npx lint-staged
 ## Comandi utili
 
 ### Eseguire il lint manualmente
+
 ```bash
 # Solo JavaScript/TypeScript/Vue
 npm run lint
@@ -63,6 +68,7 @@ npm run format
 ```
 
 ### Saltare temporaneamente il pre-commit (sconsigliato)
+
 ```bash
 git commit --no-verify -m "messaggio commit"
 ```
@@ -70,12 +76,14 @@ git commit --no-verify -m "messaggio commit"
 ## Risoluzione problemi
 
 ### Il commit viene bloccato
+
 1. Controlla l'output dell'errore
 2. Correggi manualmente i problemi evidenziati
 3. Aggiungi nuovamente i file: `git add .`
 4. Riprova il commit
 
 ### Aggiornare le dipendenze
+
 ```bash
 npm install --save-dev husky lint-staged
 ```

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -15,7 +16,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-    // Route per testare la palette colori (solo in development)
+    /*
+     * Customer Routes
+     */
+    Route::resource('customers', CustomerController::class);
+
+    /*
+     * Color Palette Route
+     */
     Route::get('colors', function () {
         return Inertia::render('ColorPalette');
     })->name('colors');

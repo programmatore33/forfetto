@@ -114,8 +114,8 @@ class DemoDataSeeder extends Seeder
 
     private function createCustomers(User $user): void
     {
-        // Create 3-8 customers per user
-        $customerCount = fake()->numberBetween(3, 8);
+        // Create 12-25 customers per user
+        $customerCount = fake()->numberBetween(12, 25);
 
         Customer::factory()
             ->count($customerCount)
@@ -220,7 +220,6 @@ class DemoDataSeeder extends Seeder
         if ($softwareCategory) {
             Expense::factory()
                 ->software()
-                ->withReceipt()
                 ->create([
                     'user_id' => $user->id,
                     'expense_category_id' => $softwareCategory->id,
@@ -241,7 +240,6 @@ class DemoDataSeeder extends Seeder
         // Create one high-value expense
         Expense::factory()
             ->highValue()
-            ->withReceipt()
             ->create([
                 'user_id' => $user->id,
                 'expense_category_id' => $categories->random()->id,

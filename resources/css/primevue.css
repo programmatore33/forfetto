@@ -1,0 +1,88 @@
+/* PrimeVue DataTable custom styles */
+:root {
+    --p-datatable-border-radius: 0.5rem;
+    --p-datatable-border-color: hsl(var(--border));
+    --p-datatable-header-background: hsl(var(--background));
+    --p-datatable-header-border-color: hsl(var(--border));
+    --p-datatable-row-background: transparent;
+    --p-datatable-row-hover-background: hsl(var(--muted) / 0.5);
+    --p-datatable-cell-border: 0;
+    --p-paginator-background: hsl(var(--background));
+    --p-paginator-border-color: hsl(var(--border));
+    --p-inputtext-border-color: hsl(var(--input));
+    --p-inputtext-background: hsl(var(--background));
+    --p-inputtext-color: hsl(var(--foreground));
+    --p-inputtext-focus-border-color: hsl(var(--ring));
+}
+
+.p-datatable {
+    border-radius: var(--p-datatable-border-radius);
+    border: 1px solid var(--p-datatable-border-color);
+
+    .p-datatable-header {
+        background-color: var(--p-datatable-header-background);
+        border-bottom: 1px solid var(--p-datatable-header-border-color);
+    }
+
+    .p-datatable-thead>tr>th {
+        background-color: hsl(var(--muted) / 0.5);
+        border-bottom: 1px solid var(--p-datatable-border-color);
+        color: hsl(var(--muted-foreground));
+        font-weight: 500;
+    }
+
+    .p-datatable-tbody {
+        >tr {
+            border-bottom: 1px solid var(--p-datatable-border-color);
+            cursor: pointer;
+
+            &:hover {
+                background-color: var(--p-datatable-row-hover-background);
+            }
+
+            >td {
+                border: var(--p-datatable-cell-border);
+            }
+        }
+    }
+}
+
+.p-paginator {
+    background-color: var(--p-paginator-background);
+    border-top: 1px solid var(--p-paginator-border-color);
+
+    .p-paginator-pages {
+        .p-paginator-page {
+            color: hsl(var(--foreground));
+
+            &:hover {
+                background-color: hsl(var(--muted));
+            }
+
+            &.p-highlight {
+                background-color: hsl(var(--primary));
+                color: hsl(var(--primary-foreground));
+            }
+        }
+    }
+}
+
+.p-inputtext {
+    border-color: var(--p-inputtext-border-color);
+    background-color: var(--p-inputtext-background);
+    color: var(--p-inputtext-color);
+
+    &:focus {
+        outline: 2px solid var(--p-inputtext-focus-border-color);
+        outline-offset: 2px;
+        border-color: var(--p-inputtext-focus-border-color);
+    }
+}
+
+/* Dark mode support */
+.dark {
+    --p-datatable-header-background: hsl(var(--background));
+    --p-datatable-row-hover-background: hsl(var(--muted) / 0.3);
+    --p-paginator-background: hsl(var(--background));
+    --p-inputtext-background: hsl(var(--background));
+}

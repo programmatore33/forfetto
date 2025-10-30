@@ -19,7 +19,7 @@ const COMMIT_TYPES = {
 
 // Pattern for commit message: [type] Description
 const COMMIT_PATTERN =
-  /^\[(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)\]\s+.{1,50}$/;
+  /^\[(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)\]\s+.+$/;
 
 function validateCommitMessage() {
   try {

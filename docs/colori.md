@@ -18,12 +18,13 @@ La palette colori di Forfetto è stata progettata per trasmettere professionalit
 - **Classi CSS**: `bg-secondary`, `text-secondary`, `border-secondary`
 - **Variabile CSS**: `var(--color-forfetto-secondary)`
 
-### Accent: Viola Moderno `#7C3AED`
+### Accent: Grigio Freddo `#CFD8DC`
 
 - **Utilizzo**: Pulsanti secondari, link, dettagli
-- **Significato**: Innovazione, creatività, modernità
+- **Significato**: Modernità, minimalismo, eleganza discreta
 - **Classi CSS**: `bg-accent`, `text-accent`, `border-accent`
 - **Variabile CSS**: `var(--color-forfetto-accent)`
+- **⚠️ Importante**: Essendo un colore chiaro, richiede testo scuro (`#2E2E2E`) per la leggibilità
 
 ## 🎯 Colori Funzionali
 
@@ -63,7 +64,7 @@ La palette colori di Forfetto è stata progettata per trasmettere professionalit
 I colori per i grafici seguono la palette principale:
 
 - **Chart 1**: Verde menta `hsl(122 39% 49%)`
-- **Chart 2**: Viola moderno `hsl(262 83% 58%)`
+- **Chart 2**: Grigio freddo `hsl(200 15% 86%)`
 - **Chart 3**: Giallo caldo `hsl(42 100% 50%)`
 - **Chart 4**: Giallo scuro `hsl(42 100% 35%)`
 - **Chart 5**: Verde scuro `hsl(122 39% 35%)`
@@ -83,6 +84,9 @@ La modalità scura mantiene la stessa palette con luminosità adattate:
 ```html
 <!-- Pulsante primario -->
 <button class="bg-primary text-primary-foreground">Salva</button>
+
+<!-- Pulsante accent con testo scuro -->
+<button class="bg-accent text-accent-foreground">Secondario</button>
 
 <!-- Card con accent -->
 <div class="border-accent bg-card">Content</div>
@@ -112,12 +116,12 @@ Tutti i colori rispettano gli standard WCAG 2.1 per il contrasto:
 
 ## ✨ Aggiornamento Novembre 2025
 
-**Cambio del colore Accent**: Sostituito il Verde Acqua `#009688` prima con il Blu Acciaio `#2563EB` e poi con il **Viola Moderno `#7C3AED`** per:
+**Cambio del colore Accent**: Evoluzione da Verde Acqua `#009688` → Blu Acciaio `#2563EB` → Viola Moderno `#7C3AED` → Grigio Grafite `#37474F` → **Grigio Freddo `#CFD8DC`** per:
 
-- Massimo contrasto e distinzione dal Verde Menta primario
-- Colore moderno e distintivo che trasmette innovazione
-- Migliore varietà cromatica nella palette
-- Personalità unica che differenzia l'applicazione
+- Modernità e minimalismo
+- Colore neutro e delicato che non disturba
+- Ottima integrazione con verde e giallo
+- Eleganza discreta per interfacce pulite
 
 ## 🚀 Best Practices
 
@@ -126,3 +130,4 @@ Tutti i colori rispettano gli standard WCAG 2.1 per il contrasto:
 3. **Significato**: Utilizza i colori contestuali (verde per entrate, rosso per spese)
 4. **Contrasto**: Verifica sempre la leggibilità del testo sui diversi sfondi
 5. **Test**: Verifica l'interfaccia sia in modalità chiara che scura
+6. **⚠️ Accent Color**: Il Grigio Freddo richiede sempre testo scuro (`text-accent-foreground`) quando usato come sfondo

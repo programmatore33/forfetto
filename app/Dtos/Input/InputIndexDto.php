@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Dtos;
+namespace App\Dtos\Input;
 
 use Spatie\LaravelData\Attributes\Validation\In;
 use Spatie\LaravelData\Attributes\Validation\Max;

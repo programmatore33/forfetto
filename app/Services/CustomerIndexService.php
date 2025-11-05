@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Dtos\CustomerDto;
-use App\Dtos\InputIndexDto;
+use App\Dtos\Input\InputIndexDto;
 use App\Models\Customer;
 use Illuminate\Database\Eloquent\Builder;
 

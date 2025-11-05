@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Dtos\InputIndexDto;
+use App\Dtos\Input\InputIndexDto;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

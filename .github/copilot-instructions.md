@@ -126,6 +126,7 @@ Custom CSS variables for income/expense colors:
 
 - Income: `--color-forfetto-income: #4caf50` (green)
 - Expense: `--color-forfetto-expense: #ff5722` (red)
+- Accent: `--color-forfetto-accent: #7c3aed` (purple)
 
 ## Testing Guidelines
 

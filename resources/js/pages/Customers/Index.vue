@@ -52,13 +52,40 @@
         </template>
       </DataTableWithPagination>
     </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <DeleteConfirmDialog
+      v-model:isOpen="showDeleteDialog"
+      :is-deleting="isDeleting"
+      title="Elimina Cliente"
+      :description="`Sei sicuro di voler eliminare il cliente ${customerToDelete?.business_name}?`"
+      confirm-text="Elimina Cliente"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    >
+      <template #message>
+        <p>
+          Sei sicuro di voler eliminare il cliente
+          <span class="font-semibold">{{
+            customerToDelete?.business_name
+          }}</span
+          >?
+        </p>
+        <p class="mt-2 text-sm text-muted-foreground">
+          Tutti i dati associati a questo cliente verranno eliminati
+          definitivamente. Questa azione non può essere annullata.
+        </p>
+      </template>
+    </DeleteConfirmDialog>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Plus } from 'lucide-vue-next';
+import { ref } from 'vue';
 
+import DeleteConfirmDialog from '@/components/DeleteConfirmDialog.vue';
 import Heading from '@/components/Heading.vue';
 import DataTableWithPagination from '@/components/tables/DataTableWithPagination.vue';
 import { Button } from '@/components/ui/button';
@@ -98,7 +125,7 @@ interface Props {
   };
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 // Breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [
@@ -112,17 +139,41 @@ const breadcrumbs: BreadcrumbItem[] = [
 const config = useCustomerTableConfig();
 const routes = useRouteHelper('customers');
 
+// Delete dialog state
+const showDeleteDialog = ref(false);
+const isDeleting = ref(false);
+const customerToDelete = ref<Customer | null>(null);
+
 // Event handlers
 const handleEdit = (id: number) => {
   router.visit(routes.edit(id));
 };
 
 const handleDelete = (id: number) => {
-  if (confirm(config.deleteConfirmMessage)) {
-    router.delete(routes.destroy(id), {
+  // Trova il customer da eliminare per mostrare il nome nella dialog
+  const customer = props.customers.data.find((c: Customer) => c.id === id);
+  if (customer) {
+    customerToDelete.value = customer;
+    showDeleteDialog.value = true;
+  }
+};
+
+const confirmDelete = () => {
+  if (customerToDelete.value) {
+    isDeleting.value = true;
+    router.delete(routes.destroy(customerToDelete.value.id), {
       preserveScroll: true,
+      onFinish: () => {
+        isDeleting.value = false;
+        showDeleteDialog.value = false;
+        customerToDelete.value = null;
+      },
     });
   }
+};
+
+const cancelDelete = () => {
+  customerToDelete.value = null;
 };
 
 const handleRowClick = (data: any) => {

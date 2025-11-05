@@ -71,8 +71,8 @@
     /* Grigio chiarissimo */
     --color-forfetto-text: #2e2e2e;
     /* Grigio scuro */
-    --color-forfetto-accent: #009688;
-    /* Verde acqua */
+    --color-forfetto-accent: #7c3aed;
+    /* Viola moderno */
     --color-forfetto-success: #4caf50;
     /* Verde per successo */
     --color-forfetto-warning: #ffb300;
@@ -130,8 +130,8 @@
     --secondary-foreground: hsl(0 0% 18%);
     --muted: hsl(220 9% 96%);
     --muted-foreground: hsl(0 0% 45%);
-    --accent: hsl(174 100% 29%);
-    /* #009688 - Verde acqua accent */
+    --accent: hsl(262 83% 58%);
+    /* #7C3AED - Viola moderno accent */
     --accent-foreground: hsl(0 0% 98%);
     --destructive: hsl(0 84.2% 60.2%);
     --destructive-foreground: hsl(0 0% 98%);
@@ -141,8 +141,8 @@
     /* Verde menta per focus */
     --chart-1: hsl(122 39% 49%);
     /* Verde menta */
-    --chart-2: hsl(174 100% 29%);
-    /* Verde acqua */
+    --chart-2: hsl(262 83% 58%);
+    /* Viola moderno */
     --chart-3: hsl(42 100% 50%);
     /* Giallo caldo */
     --chart-4: hsl(42 100% 35%);
@@ -155,8 +155,8 @@
     --sidebar-primary: hsl(122 39% 49%);
     /* Verde menta */
     --sidebar-primary-foreground: hsl(0 0% 98%);
-    --sidebar-accent: hsl(174 100% 29%);
-    /* Verde acqua */
+    --sidebar-accent: hsl(262 83% 58%);
+    /* Viola moderno */
     --sidebar-accent-foreground: hsl(0 0% 98%);
     --sidebar-border: hsl(220 9% 89%);
     --sidebar-ring: hsl(122 39% 49%);
@@ -179,8 +179,8 @@
     --secondary-foreground: hsl(0 0% 18%);
     --muted: hsl(220 9% 15%);
     --muted-foreground: hsl(220 9% 65%);
-    --accent: hsl(174 100% 35%);
-    /* Verde acqua più chiaro per dark mode */
+    --accent: hsl(262 83% 65%);
+    /* Viola moderno più chiaro per dark mode */
     --accent-foreground: hsl(0 0% 98%);
     --destructive: hsl(0 84% 60%);
     --destructive-foreground: hsl(0 0% 98%);
@@ -190,8 +190,8 @@
     /* Verde menta per focus */
     --chart-1: hsl(122 39% 55%);
     /* Verde menta più chiaro */
-    --chart-2: hsl(174 100% 40%);
-    /* Verde acqua più chiaro */
+    --chart-2: hsl(262 83% 65%);
+    /* Viola moderno più chiaro */
     --chart-3: hsl(42 100% 55%);
     /* Giallo più chiaro */
     --chart-4: hsl(42 100% 45%);
@@ -203,8 +203,8 @@
     --sidebar-primary: hsl(122 39% 49%);
     /* Verde menta */
     --sidebar-primary-foreground: hsl(0 0% 18%);
-    --sidebar-accent: hsl(174 100% 35%);
-    /* Verde acqua */
+    --sidebar-accent: hsl(262 83% 65%);
+    /* Viola moderno */
     --sidebar-accent-foreground: hsl(0 0% 98%);
     --sidebar-border: hsl(220 9% 20%);
     --sidebar-ring: hsl(122 39% 49%);

@@ -28,6 +28,7 @@ class User extends Authenticatable
         'tax_code',
         'tax_rate',
         'activity_start_year',
+        'is_demo',
     ];
 
     /**
@@ -55,6 +56,7 @@ class User extends Authenticatable
             'two_factor_confirmed_at' => 'datetime',
             'tax_rate' => 'decimal:2',
             'activity_start_year' => 'integer',
+            'is_demo' => 'boolean',
         ];
     }
 
@@ -81,6 +83,53 @@ class User extends Authenticatable
     public function expenseCategories(): HasMany
     {
         return $this->hasMany(ExpenseCategory::class);
+    }
+
+    /**
+     * Get user sessions for demo users.
+     */
+    public function userSessions(): HasMany
+    {
+        return $this->hasMany(UserSession::class);
+    }
+
+    /**
+     * Check if user is a demo user.
+     */
+    public function isDemoUser(): bool
+    {
+        return $this->is_demo;
+    }
+
+    /**
+     * Get the current active demo session for this user.
+     */
+    public function getActiveDemoSession(): ?UserSession
+    {
+        if (! $this->is_demo) {
+            return null;
+        }
+
+        return $this->userSessions()
+            ->where('expires_at', '>', now())
+            ->latest()
+            ->first();
+    }
+
+    /**
+     * Create a new demo session for this user.
+     */
+    public function createDemoSession(): UserSession
+    {
+        if (! $this->is_demo) {
+            throw new \Exception('Cannot create demo session for non-demo user');
+        }
+
+        return UserSession::create([
+            'user_id' => $this->id,
+            'session_id' => \Illuminate\Support\Str::uuid()->toString(),
+            'expires_at' => now()->addHours(24),
+        ]);
     }
 
     public function isEligibleForReducedRate(): bool

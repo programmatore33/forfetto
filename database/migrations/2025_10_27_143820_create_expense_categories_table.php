@@ -14,14 +14,16 @@ return new class extends Migration
         Schema::create('expense_categories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('session_id')->nullable()->comment('Demo session ID for demo users');
             $table->string('name', 100);
             $table->text('description')->nullable();
             $table->string('color', 7)->default('#6B7280')->comment('For UI (e.g., #3B82F6)');
             $table->timestamps();
 
             // Unique constraint: either global category (user_id is null) or user-specific category
-            $table->unique(['user_id', 'name'], 'unique_user_category');
+            $table->unique(['user_id', 'session_id', 'name'], 'unique_user_session_category');
             $table->index('user_id');
+            $table->index(['user_id', 'session_id']);
         });
     }
 

@@ -16,6 +16,7 @@ class Invoice extends Model
 
     protected $fillable = [
         'user_id',
+        'session_id',
         'customer_id',
         'ateco_code_id',
         'invoice_number',

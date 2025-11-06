@@ -13,6 +13,7 @@ class Expense extends Model
 
     protected $fillable = [
         'user_id',
+        'session_id',
         'expense_date',
         'expense_category_id',
         'description',

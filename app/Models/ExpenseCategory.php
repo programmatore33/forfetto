@@ -14,6 +14,7 @@ class ExpenseCategory extends Model
 
     protected $fillable = [
         'user_id',
+        'session_id',
         'name',
         'description',
         'color',
@@ -38,11 +39,23 @@ class ExpenseCategory extends Model
     /**
      * Scope to get all available categories for a user (global + user-specific).
      */
-    public function scopeAvailableForUser(Builder $query, int $userId): Builder
+    public function scopeAvailableForUser(Builder $query, int $userId, ?string $sessionId = null): Builder
     {
-        return $query->where(function ($q) use ($userId) {
-            $q->whereNull('user_id')
-                ->orWhere('user_id', $userId);
+        return $query->where(function ($q) use ($userId, $sessionId) {
+            // Global categories (no user_id and no session_id)
+            $q->whereNull('user_id')->whereNull('session_id');
+
+            // User-specific categories for regular users
+            if (! $sessionId) {
+                $q->orWhere(function ($subQ) use ($userId) {
+                    $subQ->where('user_id', $userId)->whereNull('session_id');
+                });
+            } else {
+                // Demo session categories
+                $q->orWhere(function ($subQ) use ($userId, $sessionId) {
+                    $subQ->where('user_id', $userId)->where('session_id', $sessionId);
+                });
+            }
         });
     }
 

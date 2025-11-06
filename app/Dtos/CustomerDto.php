@@ -14,7 +14,7 @@ class CustomerDto extends Data
     public function __construct(
         public int $id,
         public string $business_name,
-        public string $email,
+        public ?string $email,
         public ?string $vat_number,
         public ?string $tax_code,
         public ?string $phone,

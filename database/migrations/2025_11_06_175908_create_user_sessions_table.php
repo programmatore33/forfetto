@@ -11,17 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ateco_codes', function (Blueprint $table) {
+        Schema::create('user_sessions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('session_id')->nullable()->comment('Demo session ID for demo users');
-            $table->string('ateco_code', 10)->comment('e.g: 62.01.00');
-            $table->string('description')->comment('e.g: Software development');
-            $table->decimal('profitability_coeff', 5, 2)->comment('e.g: 78.00 (78%)');
-            $table->boolean('is_primary')->default(false)->comment('Main activity');
+            $table->string('session_id')->unique()->comment('Unique session identifier for demo users');
+            $table->timestamp('expires_at')->comment('When this demo session expires');
             $table->timestamps();
 
+            // Indexes for performance
             $table->index('user_id');
+            $table->index('expires_at');
             $table->index(['user_id', 'session_id']);
         });
     }
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ateco_codes');
+        Schema::dropIfExists('user_sessions');
     }
 };

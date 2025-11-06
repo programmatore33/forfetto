@@ -25,8 +25,122 @@ class DemoDataSeeder extends Seeder
         $this->command->info('✅ Dati demo creati con successo!');
     }
 
+    /**
+     * Seed data for a specific demo session.
+     */
+    public function seedForSession(int $userId, string $sessionId): void
+    {
+        $user = User::find($userId);
+
+        if (! $user || ! $user->is_demo) {
+            throw new \Exception("Invalid demo user: {$userId}");
+        }
+
+        // Temporarily set the session in Laravel session for the trait to work
+        session(['demo_session_id' => $sessionId]);
+
+        // Create demo data specific to this session
+        $this->createSessionAtecoCode($user);
+        $this->createSessionCustomers($user);
+        $this->createSessionInvoices($user);
+        $this->createSessionExpenses($user);
+
+        // Clear the session
+        session()->forget('demo_session_id');
+    }
+
+    /**
+     * Create ATECO code for demo session.
+     */
+    private function createSessionAtecoCode(User $user): void
+    {
+        AtecoCode::factory()
+            ->software()
+            ->primary()
+            ->create(['user_id' => $user->id]);
+    }
+
+    /**
+     * Create customers for demo session.
+     */
+    private function createSessionCustomers(User $user): void
+    {
+        // Create 3-5 customers for demo
+        $customerCount = fake()->numberBetween(3, 5);
+
+        Customer::factory()
+            ->count($customerCount)
+            ->create(['user_id' => $user->id]);
+    }
+
+    /**
+     * Create invoices for demo session.
+     */
+    private function createSessionInvoices(User $user): void
+    {
+        $atecoCode = $user->atecoCodes()->first();
+        $customers = $user->customers;
+
+        // Create 5-10 invoices for demo
+        $invoiceCount = fake()->numberBetween(5, 10);
+
+        for ($i = 0; $i < $invoiceCount; $i++) {
+            $customer = fake()->boolean(70) ? $customers->random() : null;
+
+            Invoice::factory()
+                ->create([
+                    'user_id' => $user->id,
+                    'customer_id' => $customer?->id,
+                    'ateco_code_id' => $atecoCode->id,
+                ]);
+        }
+    }
+
+    /**
+     * Create expenses for demo session.
+     */
+    private function createSessionExpenses(User $user): void
+    {
+        // Create basic expense categories
+        $categories = [
+            ['name' => 'Software', 'description' => 'Software e servizi digitali', 'color' => '#3B82F6'],
+            ['name' => 'Hardware', 'description' => 'Attrezzature e dispositivi', 'color' => '#10B981'],
+            ['name' => 'Formazione', 'description' => 'Corsi e certificazioni', 'color' => '#8B5CF6'],
+            ['name' => 'Ufficio', 'description' => 'Materiale da ufficio', 'color' => '#6B7280'],
+        ];
+
+        foreach ($categories as $categoryData) {
+            ExpenseCategory::factory()->create([
+                'user_id' => $user->id,
+                'name' => $categoryData['name'],
+                'description' => $categoryData['description'],
+                'color' => $categoryData['color'],
+            ]);
+        }
+
+        $expenseCategories = $user->fresh()->expenseCategories;
+
+        // Create 5-10 expenses for demo
+        $expenseCount = fake()->numberBetween(5, 10);
+
+        for ($i = 0; $i < $expenseCount; $i++) {
+            Expense::factory()
+                ->create([
+                    'user_id' => $user->id,
+                    'expense_category_id' => $expenseCategories->random()->id,
+                ]);
+        }
+    }
+
     private function createDemoUsers(): void
     {
+        // Create the main demo user (no data, will be populated at login)
+        $demoUser = User::factory()
+            ->demo()
+            ->create();
+
+        $this->command->info("🎭 Creato utente demo: {$demoUser->email} (password: demo123)");
+
         // Freelancer software developer (reduced rate)
         $developer = User::factory()
             ->reducedRate()

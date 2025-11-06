@@ -126,4 +126,25 @@ class UserFactory extends Factory
             'activity_start_year' => fake()->numberBetween(2015, 2019), // Older activity
         ]);
     }
+
+    /**
+     * Create a demo user.
+     */
+    public function demo(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_demo' => true,
+            'email' => 'demo@forfetto.it',
+            'name' => 'Utente Demo',
+            'password' => 'demo123',
+            'vat_number' => '12345678901',
+            'tax_code' => 'DMOUSR80A01H501X', // 16 characters max
+            'tax_rate' => 15.00,
+            'activity_start_year' => 2022,
+            // Disable two-factor auth for demo user
+            'two_factor_secret' => null,
+            'two_factor_recovery_codes' => null,
+            'two_factor_confirmed_at' => null,
+        ]);
+    }
 }

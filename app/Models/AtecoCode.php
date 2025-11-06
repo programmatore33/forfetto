@@ -14,6 +14,7 @@ class AtecoCode extends Model
 
     protected $fillable = [
         'user_id',
+        'session_id',
         'ateco_code',
         'description',
         'profitability_coeff',

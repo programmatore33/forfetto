@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('session_id')->nullable()->comment('Demo session ID for demo users');
             $table->string('business_name');
             $table->string('vat_number', 11)->nullable();
             $table->string('tax_code', 16)->nullable();
@@ -29,6 +30,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('user_id');
+            $table->index(['user_id', 'session_id']);
         });
     }
 

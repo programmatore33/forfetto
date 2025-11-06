@@ -6,13 +6,32 @@ Forfetto is an Italian flat-tax regime (regime forfettario) income tracking appl
 
 ## Architecture Patterns
 
-### Multi-Tenant User Isolation
+### Multi-Tenant User Isolation with Demo System
 
 All models use `HasUserScope` trait (`app/Traits/HasUserScope.php`) for automatic user scoping:
 
-- Global scope filters by `user_id` automatically
-- Auto-assigns `user_id` on creation
-- Use `withoutUserScope()` or `forUser($userId)` for admin access
+- **Regular users**: Global scope filters by `user_id` automatically
+- **Demo users**: Additional filtering by `session_id` for complete isolation
+- Auto-assigns `user_id` and `session_id` (for demo users) on creation
+- Use `withoutUserScope()`, `forUser($userId)`, or `forDemoSession($sessionId)` for admin access
+
+#### Demo System (`docs/sistema-demo.md`)
+
+- **Demo users** (`is_demo = true`) get isolated sessions with temporary data
+- **UserSession model** manages 24-hour demo sessions with UUID identifiers
+- **DemoSession middleware** handles session creation, data population, and cleanup
+- **Automatic cleanup** via `demo:cleanup` command (scheduled hourly)
+- **DemoDataSeeder** creates realistic sample data for each session
+
+#### Demo Usage
+
+```php
+// Create demo user
+$demoUser = User::factory()->demo()->create();
+
+// Access: demo@forfetto.it / demo123
+// System automatically creates isolated session with sample data
+```
 
 ### Data Layer Pattern
 
@@ -38,6 +57,19 @@ composer run dev       # Start dev server with queue, logs, and Vite
 composer run test      # Run PHPUnit tests
 ```
 
+### Demo System Management
+
+```bash
+# View demo sessions (dry run)
+php artisan demo:cleanup --dry-run
+
+# Clean expired sessions
+php artisan demo:cleanup --force
+
+# Clean specific session
+php artisan demo:cleanup --session-id=uuid --force
+```
+
 ### Code Quality (Automated via Husky)
 
 - **PHP**: Laravel Pint (PSR-12 formatting)
@@ -55,10 +87,12 @@ composer run test      # Run PHPUnit tests
 
 ### Backend (Laravel)
 
+- **Laravel 12.35.1**: Uses application structure with `bootstrap/app.php`
 - **Comments**: Always in English, PHPDoc for public/protected methods
 - **Migrations**: Minimal comments unless critical
 - **Seeder data**: Use Italian language for realistic data
 - **Enums**: Use for constants like `TaxRateEnum`, `PaymentMethodEnum`
+- **Scheduling**: Use `routes/console.php` for task scheduling (Laravel 12 style)
 
 ### Frontend (Vue 3)
 
@@ -94,6 +128,26 @@ composer run test      # Run PHPUnit tests
 - **Withholding tax**: 20% deduction calculations when applicable
 
 ## Domain-Specific Patterns
+
+### Demo System Patterns
+
+When working with demo functionality:
+
+```php
+// Check if user is demo
+if (Auth::user()->isDemoUser()) {
+    // Demo-specific logic
+}
+
+// Access demo session data
+$session = Auth::user()->getActiveDemoSession();
+
+// Query demo-only records for cleanup
+$demoRecords = Invoice::demoOnly()->get();
+
+// Query specific demo session
+$sessionInvoices = Invoice::forDemoSession($sessionId, $userId);
+```
 
 ### Table Management
 
@@ -132,6 +186,20 @@ Custom CSS variables for income/expense colors:
 
 - **Feature tests**: Focus on user workflows and business logic
 - **Unit tests**: Critical calculations (tax rates, net income)
+- **Demo tests**: Test session isolation, cleanup, and data population
 - Use factories for test data generation (`database/factories/`)
+
+### Demo System Testing
+
+```php
+// Test demo user creation
+$demoUser = User::factory()->demo()->create();
+
+// Test session isolation
+$session1 = $demoUser->createDemoSession();
+$session2 = $demoUser->createDemoSession();
+
+// Verify data isolation between sessions
+```
 
 Remember: This is an MVP focused on Italian business requirements. Keep features simple and user-friendly for small business owners who want to avoid accounting complexity.

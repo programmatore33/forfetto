@@ -36,60 +36,66 @@ class DemoDataSeeder extends Seeder
             throw new \Exception("Invalid demo user: {$userId}");
         }
 
-        // Temporarily set the session in Laravel session for the trait to work
-        session(['demo_session_id' => $sessionId]);
-
         // Create demo data specific to this session
-        $this->createSessionAtecoCode($user);
-        $this->createSessionCustomers($user);
-        $this->createSessionInvoices($user);
-        $this->createSessionExpenses($user);
-
-        // Clear the session
-        session()->forget('demo_session_id');
+        $this->createSessionAtecoCode($user, $sessionId);
+        $this->createSessionCustomers($user, $sessionId);
+        $this->createSessionInvoices($user, $sessionId);
+        $this->createSessionExpenses($user, $sessionId);
     }
 
     /**
      * Create ATECO code for demo session.
      */
-    private function createSessionAtecoCode(User $user): void
+    private function createSessionAtecoCode(User $user, string $sessionId): void
     {
         AtecoCode::factory()
             ->software()
             ->primary()
-            ->create(['user_id' => $user->id]);
+            ->create([
+                'user_id' => $user->id,
+                'session_id' => $sessionId,
+            ]);
     }
 
     /**
      * Create customers for demo session.
      */
-    private function createSessionCustomers(User $user): void
+    private function createSessionCustomers(User $user, string $sessionId): void
     {
         // Create 3-5 customers for demo
         $customerCount = fake()->numberBetween(3, 5);
 
         Customer::factory()
             ->count($customerCount)
-            ->create(['user_id' => $user->id]);
+            ->create([
+                'user_id' => $user->id,
+                'session_id' => $sessionId,
+            ]);
     }
 
     /**
      * Create invoices for demo session.
      */
-    private function createSessionInvoices(User $user): void
+    private function createSessionInvoices(User $user, string $sessionId): void
     {
-        $atecoCode = $user->atecoCodes()->first();
-        $customers = $user->customers;
+        $atecoCode = AtecoCode::where('user_id', $user->id)
+            ->where('session_id', $sessionId)
+            ->first();
+
+        $customers = Customer::where('user_id', $user->id)
+            ->where('session_id', $sessionId)
+            ->get();
 
         // Create 5-10 invoices for demo
         $invoiceCount = fake()->numberBetween(5, 10);
 
         for ($i = 0; $i < $invoiceCount; $i++) {
-            $customer = fake()->boolean(70) ? $customers->random() : null;
+            $customer = fake()->boolean(70) && $customers->isNotEmpty() ? $customers->random() : null;
 
             Invoice::factory()
                 ->create([
                     'user_id' => $user->id,
+                    'session_id' => $sessionId,
                     'customer_id' => $customer?->id,
                     'ateco_code_id' => $atecoCode->id,
                 ]);
@@ -99,7 +105,7 @@ class DemoDataSeeder extends Seeder
     /**
      * Create expenses for demo session.
      */
-    private function createSessionExpenses(User $user): void
+    private function createSessionExpenses(User $user, string $sessionId): void
     {
         // Create basic expense categories
         $categories = [
@@ -112,13 +118,16 @@ class DemoDataSeeder extends Seeder
         foreach ($categories as $categoryData) {
             ExpenseCategory::factory()->create([
                 'user_id' => $user->id,
+                'session_id' => $sessionId,
                 'name' => $categoryData['name'],
                 'description' => $categoryData['description'],
                 'color' => $categoryData['color'],
             ]);
         }
 
-        $expenseCategories = $user->fresh()->expenseCategories;
+        $expenseCategories = ExpenseCategory::where('user_id', $user->id)
+            ->where('session_id', $sessionId)
+            ->get();
 
         // Create 5-10 expenses for demo
         $expenseCount = fake()->numberBetween(5, 10);
@@ -127,6 +136,7 @@ class DemoDataSeeder extends Seeder
             Expense::factory()
                 ->create([
                     'user_id' => $user->id,
+                    'session_id' => $sessionId,
                     'expense_category_id' => $expenseCategories->random()->id,
                 ]);
         }

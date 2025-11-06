@@ -2,13 +2,9 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\UserSession;
-use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -40,7 +36,8 @@ class DemoSession
     private function handleDemoSession(): void
     {
         $user = Auth::user();
-        $sessionId = session('demo_session_id');
+        // Try cookie first, then session as fallback
+        $sessionId = request()->cookie('demo_session_id');
 
         // Check if we have a valid existing session in the current browser session
         if ($sessionId) {
@@ -59,8 +56,7 @@ class DemoSession
             }
         }
 
-        // Always create a new demo session if no valid session in browser
-        // This means every login creates fresh demo data
+        // Create new demo session only if no active sessions exist
         $this->createNewDemoSession($user);
     }
 
@@ -72,12 +68,6 @@ class DemoSession
         $sessionId = Str::uuid()->toString();
         $expiresAt = Carbon::now()->addHours(24);
 
-        Log::debug('Creating new demo session', [
-            'user_id' => $user->id,
-            'session_id' => $sessionId,
-            'expires_at' => $expiresAt,
-        ]);
-
         // Create the session record
         UserSession::create([
             'user_id' => $user->id,
@@ -85,16 +75,19 @@ class DemoSession
             'expires_at' => $expiresAt,
         ]);
 
-        // Store session ID in Laravel session
-        session(['demo_session_id' => $sessionId]);
-
-        Log::debug('Demo session created and stored in Laravel session', [
-            'session_id' => $sessionId,
-            'laravel_session_stored' => session('demo_session_id'),
-        ]);
+        // Store session ID in both cookie and session
+        $this->setDemoSessionCookieAndSession($sessionId);
 
         // Populate demo data
         $this->populateDemoData($user->id, $sessionId);
+    }
+
+    /**
+     * Set the demo session in both cookie and Laravel session.
+     */
+    private function setDemoSessionCookieAndSession(string $sessionId): void
+    {
+        cookie()->queue('demo_session_id', $sessionId, 60 * 24); // 24 hours
     }
 
     /**
@@ -121,8 +114,8 @@ class DemoSession
      */
     private function cleanupExpiredSession(UserSession $userSession): void
     {
-        // Remove session from Laravel session
-        session()->forget('demo_session_id');
+        // Remove both cookie and session
+        cookie()->queue(cookie()->forget('demo_session_id'));
 
         // This will call the cleanup command functionality
         try {

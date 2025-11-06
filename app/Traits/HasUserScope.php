@@ -28,8 +28,11 @@ trait HasUserScope
                 $builder->where('user_id', $user->id);
 
                 // If it's a demo user, also filter by session_id
-                if ($user->is_demo && session()->has('demo_session_id')) {
-                    $builder->where('session_id', session('demo_session_id'));
+                if ($user->is_demo) {
+                    $sessionId = request()->cookie('demo_session_id');
+                    if ($sessionId) {
+                        $builder->where('session_id', $sessionId);
+                    }
                 }
             }
         });
@@ -44,8 +47,11 @@ trait HasUserScope
                 }
 
                 // If it's a demo user, also assign session_id
-                if ($user->is_demo && session()->has('demo_session_id') && ! $model->session_id) {
-                    $model->session_id = session('demo_session_id');
+                if ($user->is_demo) {
+                    $sessionId = request()->cookie('demo_session_id');
+                    if ($sessionId && ! $model->session_id) {
+                        $model->session_id = $sessionId;
+                    }
                 }
             }
         });

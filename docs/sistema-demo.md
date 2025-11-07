@@ -121,6 +121,8 @@ Nuovo state: `demo()`
 - Password: `demo123`
 - Dati fissi per consistenza
 
+> **Nota Sicurezza:** Le credenziali demo sono intenzionalmente pubbliche e non rappresentano un rischio di sicurezza. L'account demo ha isolamento completo dei dati e auto-distruzione delle sessioni.
+
 ## Utilizzo
 
 ### Creazione Utente Demo
@@ -131,7 +133,7 @@ $demoUser = User::factory()->demo()->create();
 
 ### Accesso alla Piattaforma Demo
 
-1. Login con `demo@forfetto.it` / `demo123`
+1. Login con `demo@forfetto.it` / `demo123` (credenziali pubbliche per demo)
 2. Il middleware `DemoSession` intercetta la richiesta
 3. Crea automaticamente una nuova sessione con UUID
 4. Popola dati demo tramite `DemoDataSeeder`

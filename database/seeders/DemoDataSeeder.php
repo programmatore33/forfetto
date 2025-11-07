@@ -150,6 +150,7 @@ class DemoDataSeeder extends Seeder
             ->create();
 
         $this->command->info("🎭 Creato utente demo: {$demoUser->email} (password: demo123)");
+        $this->command->info('    ℹ️  DEMO CREDENTIALS - Intentionally public for demo purposes');
 
         // Freelancer software developer (reduced rate)
         $developer = User::factory()

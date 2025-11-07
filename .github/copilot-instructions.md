@@ -29,6 +29,7 @@ All models use `HasUserScope` trait (`app/Traits/HasUserScope.php`) for automati
 // Create demo user
 $demoUser = User::factory()->demo()->create();
 
+// DEMO CREDENTIALS - Intentionally public for demo purposes
 // Access: demo@forfetto.it / demo123
 // System automatically creates isolated session with sample data
 ```

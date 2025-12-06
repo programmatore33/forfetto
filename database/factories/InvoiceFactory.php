@@ -21,8 +21,10 @@ class InvoiceFactory extends Factory
     public function definition(): array
     {
         $amount = fake()->randomFloat(2, 100, 5000);
-        $withholdingTax = fake()->boolean(30) ? $amount * 0.20 : 0; // 30% chance of withholding
-        $netAmount = $amount - $withholdingTax;
+        // Contributo integrativo optionally applied (app defaults set in settings)
+        $applyContributo = fake()->boolean(40);
+        $contributoAmount = $applyContributo ? round($amount * 0.04, 2) : 0.00;
+        $netAmount = $amount + $contributoAmount;
 
         $services = [
             'Sviluppo applicazione web',
@@ -61,7 +63,8 @@ class InvoiceFactory extends Factory
             'payment_date' => fake()->boolean(70) ? fake()->dateTimeBetween('-6 months', 'now')->format('Y-m-d') : null,
             'description' => fake()->randomElement($services).' - '.fake('it_IT')->sentence(6),
             'amount' => $amount,
-            'withholding_tax' => $withholdingTax,
+            'contributo_integrativo_applied' => $applyContributo,
+            'contributo_integrativo_amount' => $contributoAmount,
             'net_amount' => $netAmount,
             'is_paid' => fake()->boolean(75), // 75% paid
             'payment_method' => fake()->randomElement(PaymentMethodEnum::cases()),
@@ -109,13 +112,12 @@ class InvoiceFactory extends Factory
      */
     public function withWithholding(): static
     {
+        // Helper for compatibility: ensure net_amount equals amount (no extra logic)
         return $this->state(function (array $attributes) {
-            $amount = $attributes['amount'];
-            $withholdingTax = $amount * 0.20;
-
             return [
-                'withholding_tax' => $withholdingTax,
-                'net_amount' => $amount - $withholdingTax,
+                'contributo_integrativo_applied' => $attributes['contributo_integrativo_applied'] ?? false,
+                'contributo_integrativo_amount' => $attributes['contributo_integrativo_amount'] ?? 0.00,
+                'net_amount' => $attributes['amount'],
             ];
         });
     }
@@ -127,7 +129,8 @@ class InvoiceFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'withholding_tax' => 0.00,
+                'contributo_integrativo_applied' => false,
+                'contributo_integrativo_amount' => 0.00,
                 'net_amount' => $attributes['amount'],
             ];
         });
@@ -140,12 +143,12 @@ class InvoiceFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $amount = fake()->randomFloat(2, 3000, 15000);
-            $withholdingTax = fake()->boolean(50) ? $amount * 0.20 : 0;
 
             return [
                 'amount' => $amount,
-                'withholding_tax' => $withholdingTax,
-                'net_amount' => $amount - $withholdingTax,
+                'contributo_integrativo_applied' => false,
+                'contributo_integrativo_amount' => 0.00,
+                'net_amount' => $amount,
             ];
         });
     }

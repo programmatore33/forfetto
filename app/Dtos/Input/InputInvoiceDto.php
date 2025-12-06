@@ -112,10 +112,11 @@ class InputInvoiceDto extends Data
         public float $amount = 0,
 
         #[Sometimes, Nullable, Min(0)]
-        public float $withholding_tax = 0,
-
-        #[Sometimes, Nullable, Min(0)]
         public float $net_amount = 0,
+        #[Sometimes, BooleanType]
+        public bool $contributo_integrativo_applied = false,
+        #[Sometimes, Nullable, Min(0)]
+        public float $contributo_integrativo_amount = 0,
 
         #[Sometimes, BooleanType]
         public bool $is_paid = false,
@@ -164,8 +165,9 @@ class InputInvoiceDto extends Data
      */
     public function toModelArray(): array
     {
-        // Calculate net amount if not provided
-        $netAmount = $this->net_amount ?: ($this->amount - $this->withholding_tax);
+        // Calculate net amount if not provided: amount + contributo integrativo (if applied)
+        $computedContributo = $this->contributo_integrativo_applied ? $this->contributo_integrativo_amount : 0;
+        $netAmount = $this->net_amount ?: ($this->amount + $computedContributo);
 
         return [
             'customer_id' => $this->customer_id,
@@ -187,27 +189,12 @@ class InputInvoiceDto extends Data
             'payment_date' => $this->payment_date,
             'description' => $this->description,
             'amount' => $this->amount,
-            'withholding_tax' => $this->withholding_tax,
+            'contributo_integrativo_applied' => $this->contributo_integrativo_applied,
+            'contributo_integrativo_amount' => $computedContributo,
             'net_amount' => $netAmount,
             'is_paid' => $this->is_paid,
             'payment_method' => $this->payment_method,
             'notes' => $this->notes,
         ];
-    }
-
-    /**
-     * Check if invoice has withholding tax
-     */
-    public function hasWithholdingTax(): bool
-    {
-        return $this->withholding_tax > 0;
-    }
-
-    /**
-     * Calculate net amount
-     */
-    public function calculateNetAmount(): float
-    {
-        return $this->amount - $this->withholding_tax;
     }
 }

@@ -214,12 +214,17 @@
               </p>
             </div>
 
-            <div v-if="invoice.withholding_tax > 0">
+            <div
+              v-if="
+                invoice.contributo_integrativo_amount &&
+                invoice.contributo_integrativo_amount > 0
+              "
+            >
               <span class="text-sm font-medium text-muted-foreground">
-                Ritenuta d'Acconto (20%)
+                Contributo Integrativo (4%)
               </span>
-              <p class="mt-1 text-lg font-semibold text-red-600">
-                - {{ formatCurrency(invoice.withholding_tax) }}
+              <p class="mt-1 text-lg font-semibold text-gray-700">
+                + {{ formatCurrency(invoice.contributo_integrativo_amount) }}
               </p>
             </div>
 
@@ -357,7 +362,8 @@ interface Invoice {
   customer_sdi_code: string | null;
   description: string;
   amount: number;
-  withholding_tax: number;
+  contributo_integrativo_applied: boolean;
+  contributo_integrativo_amount: number;
   net_amount: number;
   is_paid: boolean;
   payment_method: string | null;

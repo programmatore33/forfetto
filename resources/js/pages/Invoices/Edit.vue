@@ -83,7 +83,8 @@ interface Invoice {
   customer_sdi_code: string | null;
   description: string;
   amount: number;
-  withholding_tax: number;
+  contributo_integrativo_applied: boolean;
+  contributo_integrativo_amount: number;
   net_amount: number;
   is_paid: boolean;
   payment_date: string | null;

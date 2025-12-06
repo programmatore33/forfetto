@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('professional_fund', 80)->nullable();
             $table->boolean('reduced_contributions')->default(false);
             $table->boolean('startup_rate')->default(false);
+            // Percentuale predefinita per contributo integrativo (es. 4%)
+            $table->decimal('contributo_integrativo_percent', 5, 2)->default(4.00)->comment('Default contributo integrativo percentuale');
             $table->timestamps();
 
             $table->unique(['user_id', 'session_id']);

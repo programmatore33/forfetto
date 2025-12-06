@@ -280,9 +280,7 @@
           <Euro class="h-5 w-5" />
           Importi
         </CardTitle>
-        <CardDescription>
-          Importo fattura e ritenuta d'acconto
-        </CardDescription>
+        <CardDescription> Importo fattura </CardDescription>
       </CardHeader>
       <CardContent class="space-y-4">
         <div class="grid gap-2">
@@ -303,22 +301,24 @@
 
         <div class="flex items-center space-x-2">
           <input
-            id="apply_withholding"
-            v-model="applyWithholding"
+            id="apply_contributo"
+            v-model="applyContributo"
             type="checkbox"
             class="h-4 w-4 rounded border-gray-300"
           />
-          <Label for="apply_withholding" class="cursor-pointer">
-            Applica ritenuta d'acconto 20%
+          <Label for="apply_contributo" class="cursor-pointer">
+            Applica contributo integrativo 4%
           </Label>
         </div>
 
-        <div v-if="applyWithholding" class="grid gap-2">
-          <Label for="withholding_tax">Ritenuta d'Acconto (20%)</Label>
+        <div v-if="applyContributo" class="grid gap-2">
+          <Label for="contributo_integrativo_amount"
+            >Contributo Integrativo (4%)</Label
+          >
           <Input
-            id="withholding_tax"
-            :model-value="calculatedWithholding"
-            name="withholding_tax"
+            id="contributo_integrativo_amount"
+            :model-value="form.contributo_integrativo_amount"
+            name="contributo_integrativo_amount"
             type="number"
             step="0.01"
             readonly
@@ -330,7 +330,7 @@
           <Label for="net_amount">Importo Netto</Label>
           <Input
             id="net_amount"
-            :model-value="calculatedNetAmount"
+            :model-value="form.net_amount"
             name="net_amount"
             type="number"
             step="0.01"
@@ -498,7 +498,8 @@ interface Invoice {
   customer_sdi_code: string;
   description: string;
   amount: number;
-  withholding_tax: number;
+  contributo_integrativo_applied?: boolean;
+  contributo_integrativo_amount?: number;
   net_amount: number;
   is_paid: boolean;
   payment_date: string;
@@ -546,7 +547,8 @@ const form = reactive<Invoice>({
   customer_sdi_code: '',
   description: '',
   amount: 0,
-  withholding_tax: 0,
+  contributo_integrativo_applied: false,
+  contributo_integrativo_amount: 0,
   net_amount: 0,
   is_paid: false,
   payment_date: '',
@@ -554,21 +556,23 @@ const form = reactive<Invoice>({
   notes: '',
 });
 
-const applyWithholding = ref(false);
 const loadingNumber = ref(false);
+const applyContributo = ref(false);
+
+const calculatedContributo = computed(() => {
+  return applyContributo.value
+    ? parseFloat((form.amount * 0.04).toFixed(2))
+    : 0;
+});
+
+const calculatedNetAmount = computed(() => {
+  return parseFloat((form.amount + calculatedContributo.value).toFixed(2));
+});
 
 // Computed
 const isEdit = computed(() => !!props.invoice?.id);
 
-const calculatedWithholding = computed(() => {
-  if (!applyWithholding.value) return '0.00';
-  return (form.amount * 0.2).toFixed(2);
-});
-
-const calculatedNetAmount = computed(() => {
-  const withholding = applyWithholding.value ? form.amount * 0.2 : 0;
-  return (form.amount - withholding).toFixed(2);
-});
+// Net amount equals full amount for regime forfettario (no withholding)
 
 // Watch for form initialization
 watch(
@@ -591,7 +595,13 @@ watch(
         payment_method: newInvoice.payment_method || '',
         notes: newInvoice.notes || '',
       });
-      applyWithholding.value = newInvoice.withholding_tax > 0;
+      // initialize contributo flag from invoice if present
+      applyContributo.value = !!newInvoice.contributo_integrativo_applied;
+      form.contributo_integrativo_amount =
+        newInvoice.contributo_integrativo_amount ?? 0;
+      // Ensure net_amount is a number (two decimals)
+      const netValue = newInvoice.net_amount ?? newInvoice.amount ?? 0;
+      form.net_amount = parseFloat(Number(netValue).toFixed(2));
     }
   },
   { immediate: true },
@@ -609,22 +619,14 @@ watch(
   { immediate: true },
 );
 
-// Update withholding when checkbox changes
-watch(applyWithholding, (value) => {
-  form.withholding_tax = value ? parseFloat(calculatedWithholding.value) : 0;
-  form.net_amount = parseFloat(calculatedNetAmount.value);
-});
+// No withholding logic for forfettario; net_amount mirrors amount
 
 // Update calculations when amount changes
-watch(
-  () => form.amount,
-  () => {
-    form.withholding_tax = applyWithholding.value
-      ? parseFloat(calculatedWithholding.value)
-      : 0;
-    form.net_amount = parseFloat(calculatedNetAmount.value);
-  },
-);
+watch([() => form.amount, applyContributo], () => {
+  form.contributo_integrativo_applied = applyContributo.value;
+  form.contributo_integrativo_amount = calculatedContributo.value;
+  form.net_amount = calculatedNetAmount.value;
+});
 
 // Watch for customer selection
 watch(

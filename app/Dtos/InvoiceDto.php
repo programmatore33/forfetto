@@ -36,7 +36,8 @@ class InvoiceDto extends Data
         public ?Carbon $payment_date,
         public string $description,
         public float $amount,
-        public float $withholding_tax,
+        public bool $contributo_integrativo_applied,
+        public float $contributo_integrativo_amount,
         public float $net_amount,
         public bool $is_paid,
         public ?PaymentMethodEnum $payment_method,
@@ -74,7 +75,8 @@ class InvoiceDto extends Data
             payment_date: $invoice->payment_date,
             description: $invoice->description,
             amount: (float) $invoice->amount,
-            withholding_tax: (float) $invoice->withholding_tax,
+            contributo_integrativo_applied: (bool) $invoice->contributo_integrativo_applied,
+            contributo_integrativo_amount: (float) $invoice->contributo_integrativo_amount,
             net_amount: (float) $invoice->net_amount,
             is_paid: $invoice->is_paid,
             payment_method: $invoice->payment_method,
@@ -90,7 +92,7 @@ class InvoiceDto extends Data
      */
     public function hasWithholdingTax(): bool
     {
-        return $this->withholding_tax > 0;
+        return false;
     }
 
     /**

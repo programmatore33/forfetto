@@ -37,8 +37,11 @@ return new class extends Migration
             $table->date('payment_date')->nullable()->comment('When actually paid');
             $table->text('description');
             $table->decimal('amount', 10, 2);
-            $table->decimal('withholding_tax', 10, 2)->default(0.00)->comment('20% withholding if applicable');
-            $table->decimal('net_amount', 10, 2)->comment('amount - withholding_tax');
+            // Contributo integrativo: flag + amount (percentuale gestita nelle settings)
+            $table->boolean('contributo_integrativo_applied')->default(false);
+            $table->decimal('contributo_integrativo_amount', 10, 2)->default(0.00);
+            // Net amount = amount + contributo_integrativo_amount
+            $table->decimal('net_amount', 10, 2)->comment('Net amount = amount + contributo_integrativo_amount');
             $table->boolean('is_paid')->default(false);
             $table->string('payment_method', 50)->nullable();
             $table->text('notes')->nullable();

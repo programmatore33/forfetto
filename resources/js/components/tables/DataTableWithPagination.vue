@@ -1,5 +1,5 @@
 <template>
-  <Card>
+  <Card no-padding>
     <CardContent class="p-0">
       <DataTable
         :value="data"

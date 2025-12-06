@@ -30,4 +30,8 @@ export default {
     'subject-empty': [2, 'never'], // Subject is required
     'header-max-length': [2, 'always', 100], // Max header length
   },
+  ignores: [
+    (commit) => commit.includes('Merge branch'), // Ignore merge commits
+    (commit) => commit.includes('Merge pull request'), // Ignore PR merges
+  ],
 };

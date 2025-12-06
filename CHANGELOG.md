@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## 0.1.0 (2025-12-06)
+## 0.3.0 (2025-12-06)
 
 * [feat] add color palette documentation and components for Forfetto 6c2224807da9d92cedc9a3cf6c6ed2550c97465f
 * [feat] Add customer management functionality with DataTable and PrimeVue integration e46fa60b1a9c647b4eb59271b8ebcfa7e22dd86b
@@ -14,8 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * [feat] add fiscal settings management and ATECO code handling 63e7b8543d36f88cc6aa7bf87aa4b241b25d9ca0
 * [feat] Add Husky and lint-staged configuration for pre-commit hooks de569d8fb975b2d26d6e9b2ca075bcdcc691235a
 * [feat] Add Husky commit message validation 7c3059d1b7e864130296918df60d243c72cda312
+* [feat] add ignores for merge commits in commitlint configuration 14e44fe1a5d78b3c8ec0c10ab32ae7124d0bca96
 * [feat] add no-padding prop to Card component and update DataTableWithPagination usage 7a0e0f80ac4aa1efacb7817ca67870c518ef3526
 * [feat] add product management functionality with CRUD operations b1e5c5f860009e65117a3ef12af54b071a9b5cd8
+* [feat] add release-it configuration for automated versioning and changelog generation 5f16093a5292e8f4418e2a8700fdefe54a05bd00
 * [feat] add SSR script to package.json 241010d15e958f46265e60fe266fed76809fa92f
 * [feat] add user initialization and default expense categories setup 49a4acba8b1ebde540a993c379aa6cb26edb7de4
 * [feat] Add web app manifest and icons for Forfetto a39b9c673c375c9ffb0592cff5b6804ae996e9a0

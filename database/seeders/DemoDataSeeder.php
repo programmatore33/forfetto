@@ -474,7 +474,7 @@ class DemoDataSeeder extends Seeder
      */
     private function createInvoiceItems($invoice, $products): void
     {
-        if ($products->isEmpty()) {
+        if (! $products || $products->isEmpty()) {
             return;
         }
 

@@ -2,205 +2,273 @@
 
 ## Project Overview
 
-Forfetto is an Italian flat-tax regime (regime forfettario) income tracking application built with Laravel + Vue 3 + Inertia.js. It helps freelancers and sole proprietors track invoices, expenses, and calculate real net income after taxes and contributions.
+Forfetto is an Italian flat-tax regime (regime forfettario) income tracking application built with **Laravel 12.35.1 + Vue 3 + Inertia.js + TypeScript**. It helps freelancers and sole proprietors track invoices, expenses, and calculate real net income after taxes and contributions.
 
-## Architecture Patterns
+**Key Tech Stack:**
 
-### Multi-Tenant User Isolation with Demo System
+- Backend: Laravel 12 (uses `bootstrap/app.php` structure, not Kernel)
+- Frontend: Vue 3 Composition API + TypeScript, Inertia.js for SPA routing
+- UI: Shadcn/UI + Tailwind CSS + PrimeVue (tables/calendars)
+- Data Layer: Eloquent models → Spatie Laravel Data DTOs → Services
+- Auth: Laravel Fortify (2FA, password reset)
 
-All models use `HasUserScope` trait (`app/Traits/HasUserScope.php`) for automatic user scoping:
+## Critical Architecture: Multi-Tenant Demo System
 
-- **Regular users**: Global scope filters by `user_id` automatically
-- **Demo users**: Additional filtering by `session_id` for complete isolation
-- Auto-assigns `user_id` and `session_id` (for demo users) on creation
-- Use `withoutUserScope()`, `forUser($userId)`, or `forDemoSession($sessionId)` for admin access
+**ALL data models MUST use `HasUserScope` trait** (`app/Traits/HasUserScope.php`). This is non-negotiable for data isolation.
 
-#### Demo System (`docs/sistema-demo.md`)
-
-- **Demo users** (`is_demo = true`) get isolated sessions with temporary data
-- **UserSession model** manages 24-hour demo sessions with UUID identifiers
-- **DemoSession middleware** handles session creation, data population, and cleanup
-- **Automatic cleanup** via `demo:cleanup` command (scheduled hourly)
-- **DemoDataSeeder** creates realistic sample data for each session
-
-#### Demo Usage
+### How HasUserScope Works
 
 ```php
-// Create demo user
-$demoUser = User::factory()->demo()->create();
+// Every model with user data needs this
+class Invoice extends Model {
+    use HasUserScope;  // Auto-filters by user_id + session_id (for demos)
+}
 
-// DEMO CREDENTIALS - Intentionally public for demo purposes
-// Access: demo@forfetto.it / demo123
-// System automatically creates isolated session with sample data
+// Global scope automatically applied:
+Invoice::all();  // Only returns current user's invoices
+
+// For demo users, also filters by session_id from cookie
+// Demo users with same account get isolated data per browser session
 ```
 
-### Data Layer Pattern
+### Demo System Architecture (`docs/sistema-demo.md`)
 
-- **Models**: Standard Eloquent with relationships (`app/Models/`)
-- **DTOs**: Spatie Laravel Data objects for type-safe data transfer (`app/Dtos/`)
-- **Services**: Business logic and query building (`app/Services/`)
-- **Example**: `CustomerIndexService` extends base `IndexService` with pagination, search, and filtering
+1. **DemoSession Middleware** (`app/Http/Middleware/DemoSession.php`) runs on EVERY authenticated request
+2. Checks if `Auth::user()->is_demo === true`
+3. Looks for `demo_session_id` cookie:
+   - **Exists + valid?** Continue with that session
+   - **Expired/missing?** Create new UUID session, populate with `DemoDataSeeder`
+4. Sessions expire after 24 hours, cleaned by `demo:cleanup` (scheduled hourly in `routes/console.php`)
 
-### Frontend Architecture
+**CRITICAL:** When adding new data models, add `session_id` column (nullable) and `HasUserScope` trait, or demo users will see each other's data.
 
-- **Inertia.js** for SPA-like experience with server-side routing
-- **Vue 3 Composition API** with TypeScript
-- **Shadcn/UI + Tailwind CSS** for UI components
-- **PrimeVue** for complex components (data tables, calendars)
+### Admin Access Patterns
+
+```php
+// Bypass user scope for admin operations
+Model::withoutUserScope()->get();
+Model::forUser($userId)->get();  // View specific user's data
+Model::forDemoSession($sessionId, $userId);  // Demo session data
+Model::demoOnly()->get();  // All demo records (cleanup)
+```
 
 ## Development Workflows
 
-### Quick Setup
+### Essential Commands
 
 ```bash
-composer run setup    # Full project setup
-composer run dev       # Start dev server with queue, logs, and Vite
-composer run test      # Run PHPUnit tests
+# Full project setup (first time)
+composer run setup
+
+# Development (starts Laravel server, queue, logs, Vite in parallel)
+composer run dev
+
+# Run tests
+composer run test
+
+# Demo system management
+php artisan demo:cleanup --dry-run  # Preview what would be deleted
+php artisan demo:cleanup --force    # Delete expired demo sessions
+
+# Laravel Sail (Docker)
+./vendor/bin/sail up
 ```
 
-### Demo System Management
+### Code Quality (Automatic via Husky)
 
-```bash
-# View demo sessions (dry run)
-php artisan demo:cleanup --dry-run
+Pre-commit hooks run automatically on `git commit`:
 
-# Clean expired sessions
-php artisan demo:cleanup --force
+- **PHP files**: Laravel Pint (PSR-12)
+- **JS/TS/Vue files**: ESLint + Prettier
 
-# Clean specific session
-php artisan demo:cleanup --session-id=uuid --force
-```
-
-### Code Quality (Automated via Husky)
-
-- **PHP**: Laravel Pint (PSR-12 formatting)
-- **JS/TS/Vue**: ESLint + Prettier
-- **Pre-commit hooks** run automatically (`docs/husky-lint.md`)
-
-### Docker Development
-
-```bash
-./vendor/bin/sail up    # Start Laravel Sail environment
-./vendor/bin/sail down  # Stop containers
-```
+No manual formatting needed. If commit fails, hooks found unfixable issues.
 
 ## Code Conventions
 
 ### Backend (Laravel)
 
-- **Laravel 12.35.1**: Uses application structure with `bootstrap/app.php`
-- **Comments**: Always in English, PHPDoc for public/protected methods
-- **Migrations**: Minimal comments unless critical
-- **Seeder data**: Use Italian language for realistic data
-- **Enums**: Use for constants like `TaxRateEnum`, `PaymentMethodEnum`
-- **Scheduling**: Use `routes/console.php` for task scheduling (Laravel 12 style)
+**Comments:**
 
-### Frontend (Vue 3)
+- All comments in English
+- PHPDoc required for public/protected methods
+- Minimal comments in migrations unless critical
+- Seeder data and user-facing strings in Italian
 
-- **Components**: PascalCase, place in appropriate subdirectories
-- **Composables**: `use*` pattern for reusable logic (`useTableConfigs`, `useTwoFactorAuth`)
-- **Routes**: Use Laravel Wayfinder for type-safe routing
-- **Tables**: Use `DataTableWithPagination` component with configuration objects
+**Laravel 12 Specifics:**
+
+- Middleware registered in `bootstrap/app.php` (not Kernel)
+- Scheduled tasks in `routes/console.php` (not Console Kernel)
+- Application structure: `Application::configure()` pattern
+
+**Data Flow:**
+
+```php
+// Standard request pattern
+Controller → Service (business logic) → Model (Eloquent)
+         ← DTO (Spatie Data) ← Service ← Model
+```
+
+**Example:**
+
+```php
+// InvoiceController.php
+public function index(InputIndexDto $inputIndexDto) {
+    $result = $this->invoiceIndexService->getInvoices($inputIndexDto);
+    return Inertia::render('Invoices/Index', [
+        'invoices' => PaginatedResponseDto::fromServiceResult($result),
+    ]);
+}
+
+// InvoiceIndexService.php extends IndexService
+public function getInvoices(InputIndexDto $input): array {
+    $query = Invoice::query();  // HasUserScope auto-applied
+    $paginator = $this->buildQuery($query, $input, $searchable, $sortable);
+    return [
+        'data' => InvoiceDto::collect($paginator->items()),
+        'meta' => [...pagination data...],
+    ];
+}
+```
+
+**Enums:**
+Use PHP 8.2+ enums for constants (see `app/Enums/`):
+
+```php
+enum TaxRateEnum: string {
+    case REDUCED = '5.00';   // 5% (Primi 5 anni)
+    case STANDARD = '15.00'; // 15% (Standard)
+
+    public function label(): string { ... }
+    public function percentage(): float { ... }
+}
+```
+
+### Frontend (Vue 3 + TypeScript)
+
+**Inertia.js Patterns:**
+
+```typescript
+// app.ts: Single entry point
+createInertiaApp({
+  resolve: (name) =>
+    resolvePageComponent(
+      `./pages/${name}.vue`,
+      import.meta.glob<DefineComponent>('./pages/**/*.vue'),
+    ),
+  // PrimeVue configured with Aura theme + dark mode support
+});
+```
+
+**Component Organization:**
+
+- `resources/js/components/ui/` - Shadcn/UI primitives (Button, Input, Card, etc.)
+- `resources/js/components/` - Custom components (InvoiceForm, DataTableWithPagination)
+- `resources/js/pages/` - Inertia page components (route targets)
+- `resources/js/composables/` - Reusable logic (`use*` pattern)
+
+**Table Management Pattern:**
+
+```typescript
+// composables/useTableConfigs.ts
+export const useInvoiceTableConfig = () => ({
+  columns: [...],
+  actions: { edit: true, delete: true },
+  entityName: 'fattura',
+  routePrefix: 'invoices',
+});
+
+// In component:
+import { useInvoiceTableConfig } from '@/composables/useTableConfigs';
+const config = useInvoiceTableConfig();
+```
+
+**Form Handling:**
+
+```vue
+<script setup lang="ts">
+import { reactive } from 'vue';
+
+interface Invoice { ... }
+
+const form = reactive<Invoice>({ ... });
+
+const onSubmit = () => {
+  emit('submit', form);  // Parent handles Inertia form submission
+};
+</script>
+```
+
+**Routing:**
+Use Laravel Wayfinder for type-safe routes (avoids hardcoding URLs).
 
 ### File Organization
 
-- **Docs**: Create `.md` files in Italian in `docs/` folder
-- **Components**: Shadcn/UI in `components/ui/`, custom in `components/`
-- **Types**: Domain-specific types in `types/` directory
+- **Documentation:** `.md` files in Italian in `docs/` folder
+- **Migrations:** Minimal comments, use `session_id` nullable for demo support
+- **Seeders:** Italian language for realistic data
+- **Types:** Domain-specific TypeScript types in `resources/js/types/`
 
-## Key Integration Points
+## Italian Business Logic (Regime Forfettario)
 
-### Authentication & Authorization
+**Tax Rates (TaxRateEnum):**
 
-- **Laravel Fortify** for auth features (2FA, password reset)
-- **Inertia middleware** shares auth state globally
-- Custom auth views in `resources/js/pages/auth/`
+- 5%: First 5 years (Primi 5 anni)
+- 15%: Standard rate after
 
-### Database Relationships
+**Invoice Fields (Italian Requirements):**
 
-- `User` → `Customer` → `Invoice` (one-to-many chains)
-- `User` → `Expense` with `ExpenseCategory`
-- ATECO codes linked to invoices for tax calculations
+- `vat_number` (P.IVA) - 11 digits
+- `tax_code` (Codice Fiscale) - 16 alphanumeric
+- `sdi_code` (Codice SDI) - 7 chars for e-invoicing
+- `pec` (Posta Elettronica Certificata) - Certified email
 
-### Italian Business Logic
+**Contributo Integrativo:**
 
-- **Tax calculations**: 5% (first 5 years) vs 15% (standard) rates
-- **Invoice fields**: VAT number, tax code, SDI code, PEC for Italian requirements
-- **Withholding tax**: 20% deduction calculations when applicable
+- Optional 4% professional contribution on invoices
+- Checkbox in invoice form toggles calculation
+- Added to net amount: `net_amount = amount + (amount * 0.04)`
 
-## Domain-Specific Patterns
+**ATECO Codes:**
 
-### Demo System Patterns
+- Italian economic activity codes linked to invoices
+- Each user can have multiple ATECO codes, one marked `is_primary`
+- Used for tax calculations and reporting
 
-When working with demo functionality:
+## Testing
 
-```php
-// Check if user is demo
-if (Auth::user()->isDemoUser()) {
-    // Demo-specific logic
-}
-
-// Access demo session data
-$session = Auth::user()->getActiveDemoSession();
-
-// Query demo-only records for cleanup
-$demoRecords = Invoice::demoOnly()->get();
-
-// Query specific demo session
-$sessionInvoices = Invoice::forDemoSession($sessionId, $userId);
-```
-
-### Table Management
-
-Use `useTableConfigs` composable for consistent table behavior:
-
-```vue
-const config = useCustomerTableConfig(); const routes =
-useRouteHelper('customers');
-```
-
-### Data Transfer
-
-Always use DTOs for API responses:
+**Feature Tests:** User workflows (auth, CRUD operations, demo isolation)
+**Unit Tests:** Calculations (tax rates, net income), trait behavior
+**Factories:** Generate realistic Italian test data
 
 ```php
-return CustomerDto::collect($paginator->items());
-```
-
-### Form Handling
-
-Combine Inertia forms with VeeValidate for client-side validation:
-
-```vue
-import { Form } from '@inertiajs/vue3';
-```
-
-### Color System
-
-Custom CSS variables for income/expense colors:
-
-- Income: `--color-forfetto-income: #4caf50` (green)
-- Expense: `--color-forfetto-expense: #ff5722` (red)
-- Accent: `--color-forfetto-accent: #cfd8dc` (cool gray)
-
-## Testing Guidelines
-
-- **Feature tests**: Focus on user workflows and business logic
-- **Unit tests**: Critical calculations (tax rates, net income)
-- **Demo tests**: Test session isolation, cleanup, and data population
-- Use factories for test data generation (`database/factories/`)
-
-### Demo System Testing
-
-```php
-// Test demo user creation
+// Test demo isolation
 $demoUser = User::factory()->demo()->create();
-
-// Test session isolation
-$session1 = $demoUser->createDemoSession();
-$session2 = $demoUser->createDemoSession();
-
-// Verify data isolation between sessions
+$this->actingAs($demoUser);
+// Create data, verify it's isolated by session_id
 ```
 
-Remember: This is an MVP focused on Italian business requirements. Keep features simple and user-friendly for small business owners who want to avoid accounting complexity.
+Run: `composer run test` (clears config cache first)
+
+## Common Pitfalls
+
+1. **Forgetting HasUserScope on new models** → Data leakage between users/demos
+2. **Hardcoding routes instead of using Wayfinder** → Breaks type safety
+3. **Not handling demo `session_id` in migrations** → Demo system breaks
+4. **Comments in wrong language** → Code comments English, user-facing Italian
+5. **Using old Laravel Kernel patterns** → Laravel 12 uses `bootstrap/app.php`
+
+## Quick Reference
+
+**Demo Credentials (Public):** `demo@forfetto.it` / `demo123`
+**Color CSS Variables:** `--color-forfetto-income` (green), `--color-forfetto-expense` (red)
+**Decimal Precision:** Always `decimal:2` for currency fields
+**Middleware Stack:** `HandleAppearance` → `HandleInertiaRequests` → `DemoSession` (see `bootstrap/app.php`)
+
+## Project Philosophy
+
+This is an **MVP focused on simplicity** for small business owners. Keep features:
+
+- Simple (avoid accounting jargon)
+- User-friendly (clear Italian labels)
+- Fast (optimized queries with pagination)
+- Reliable (automatic data isolation, no manual session management)

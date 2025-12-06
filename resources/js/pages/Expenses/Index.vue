@@ -5,10 +5,7 @@
     <div class="space-y-6 p-4">
       <!-- Header -->
       <div class="flex items-center justify-between">
-        <Heading
-          title="Spese"
-          description="Gestisci le tue spese e i costi deducibili"
-        />
+        <Heading title="Spese" description="Gestisci le tue spese" />
         <Button as-child>
           <Link :href="routes.create()">
             <Plus class="mr-2 h-4 w-4" />
@@ -77,13 +74,6 @@
             {{ formatCurrency(data.amount) }}
           </Badge>
         </template>
-
-        <!-- Custom column for deductibility -->
-        <template #column-is_deductible="{ data }">
-          <Badge :variant="data.is_deductible ? 'default' : 'secondary'">
-            {{ data.is_deductible ? 'Deducibile' : 'Non deducibile' }}
-          </Badge>
-        </template>
       </DataTableWithPagination>
     </div>
 
@@ -136,7 +126,6 @@ interface Expense {
   description: string;
   supplier: string | null;
   amount: number;
-  is_deductible: boolean;
   expenseCategory: ExpenseCategory | null;
 }
 

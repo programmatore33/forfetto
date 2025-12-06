@@ -30,7 +30,6 @@ class ExpenseIndexService extends IndexService
             'amount',
             'description',
             'supplier',
-            'is_deductible',
             'created_at',
             'updated_at',
         ];
@@ -86,9 +85,5 @@ class ExpenseIndexService extends IndexService
             $query->where('expense_category_id', $filters['expense_category_id']);
         }
 
-        // Filter by deductible status
-        if (isset($filters['is_deductible'])) {
-            $query->where('is_deductible', (bool) $filters['is_deductible']);
-        }
     }
 }

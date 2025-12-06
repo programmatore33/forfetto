@@ -2,7 +2,6 @@
 
 namespace App\Dtos\Input;
 
-use Spatie\LaravelData\Attributes\Validation\BooleanType;
 use Spatie\LaravelData\Attributes\Validation\Date;
 use Spatie\LaravelData\Attributes\Validation\Exists;
 use Spatie\LaravelData\Attributes\Validation\Max;
@@ -53,12 +52,6 @@ class InputExpenseDto extends Data
         #[Required, Min(0.01)]
         public float $amount = 0,
 
-        #[Sometimes, Nullable, Min(0)]
-        public float $vat_amount = 0,
-
-        #[Sometimes, BooleanType]
-        public bool $is_deductible = true,
-
         #[Sometimes, Nullable]
         public ?string $notes = null,
     ) {}
@@ -74,25 +67,7 @@ class InputExpenseDto extends Data
             'description' => $this->description,
             'supplier' => $this->supplier,
             'amount' => $this->amount,
-            'vat_amount' => $this->vat_amount,
-            'is_deductible' => $this->is_deductible,
             'notes' => $this->notes,
         ];
-    }
-
-    /**
-     * Check if expense has VAT
-     */
-    public function hasVat(): bool
-    {
-        return $this->vat_amount > 0;
-    }
-
-    /**
-     * Get total with VAT
-     */
-    public function getTotalWithVat(): float
-    {
-        return $this->amount + $this->vat_amount;
     }
 }

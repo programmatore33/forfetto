@@ -19,16 +19,12 @@ class Expense extends Model
         'description',
         'supplier',
         'amount',
-        'vat_amount',
-        'is_deductible',
         'notes',
     ];
 
     protected $casts = [
         'expense_date' => 'date',
         'amount' => 'decimal:2',
-        'vat_amount' => 'decimal:2',
-        'is_deductible' => 'boolean',
     ];
 
     public function user(): BelongsTo

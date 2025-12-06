@@ -19,7 +19,6 @@ class ExpenseFactory extends Factory
     public function definition(): array
     {
         $amount = fake()->randomFloat(2, 10, 2000);
-        $vatAmount = fake()->boolean(60) ? $amount * 0.22 : 0; // 60% chance of VAT
 
         $expenseDescriptions = [
             'Software' => [
@@ -82,8 +81,6 @@ class ExpenseFactory extends Factory
             'description' => $description,
             'supplier' => fake()->boolean(80) ? fake()->randomElement($suppliers) : null,
             'amount' => $amount,
-            'vat_amount' => $vatAmount,
-            'is_deductible' => fake()->boolean(85), // 85% deductible
             'notes' => fake()->boolean(25) ? fake('it_IT')->sentence() : null,
         ];
     }
@@ -128,11 +125,8 @@ class ExpenseFactory extends Factory
     public function highValue(): static
     {
         return $this->state(function (array $attributes) {
-            $amount = fake()->randomFloat(2, 1000, 5000);
-
             return [
-                'amount' => $amount,
-                'vat_amount' => $amount * 0.22,
+                'amount' => fake()->randomFloat(2, 1000, 5000),
                 'description' => fake()->randomElement([
                     'Computer portatile professionale',
                     'Attrezzatura fotografica',
@@ -150,21 +144,6 @@ class ExpenseFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'expense_date' => fake()->dateTimeBetween('-3 months', 'now')->format('Y-m-d'),
-        ]);
-    }
-
-    /**
-     * Non-deductible expense.
-     */
-    public function nonDeductible(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'is_deductible' => false,
-            'description' => fake()->randomElement([
-                'Pranzo lavoro non deducibile',
-                'Multa parcheggio',
-                'Spesa personale erroneamente inserita',
-            ]),
         ]);
     }
 }

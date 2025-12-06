@@ -370,9 +370,8 @@ class DemoDataSeeder extends Seeder
                 'expense_category_id' => $categories->random()->id,
             ]);
 
-        // Create one non-deductible expense
+        // Create one generic expense
         Expense::factory()
-            ->nonDeductible()
             ->create([
                 'user_id' => $user->id,
                 'expense_category_id' => $categories->random()->id,

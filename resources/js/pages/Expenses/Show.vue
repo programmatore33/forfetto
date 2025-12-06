@@ -11,9 +11,6 @@
             description="Informazioni sulla spesa"
           />
           <div class="mt-2 flex items-center gap-4 text-sm">
-            <Badge :variant="expense.is_deductible ? 'default' : 'secondary'">
-              {{ expense.is_deductible ? 'Deducibile' : 'Non deducibile' }}
-            </Badge>
             <div class="flex items-center gap-2 text-muted-foreground">
               <Calendar class="h-4 w-4" />
               {{ formatDate(expense.expense_date) }}
@@ -107,31 +104,6 @@
                 </Badge>
               </p>
             </div>
-
-            <div v-if="expense.vat_amount > 0">
-              <span class="text-sm font-medium text-muted-foreground">
-                IVA (informativa)
-              </span>
-              <p class="mt-1 text-lg font-semibold">
-                {{ formatCurrency(expense.vat_amount) }}
-              </p>
-              <p class="mt-1 text-xs text-muted-foreground">
-                Non deducibile in regime forfettario
-              </p>
-            </div>
-
-            <div>
-              <span class="text-sm font-medium text-muted-foreground">
-                Deducibilità
-              </span>
-              <p class="mt-1">
-                <Badge
-                  :variant="expense.is_deductible ? 'default' : 'secondary'"
-                >
-                  {{ expense.is_deductible ? 'Deducibile' : 'Non deducibile' }}
-                </Badge>
-              </p>
-            </div>
           </CardContent>
         </Card>
 
@@ -204,8 +176,6 @@ interface Expense {
   description: string;
   supplier: string | null;
   amount: number;
-  vat_amount: number;
-  is_deductible: boolean;
   notes: string | null;
   expenseCategory: ExpenseCategory | null;
 }

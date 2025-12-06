@@ -67,55 +67,23 @@
           <Euro class="h-5 w-5" />
           Importi
         </CardTitle>
-        <CardDescription> Importo spesa e IVA </CardDescription>
+        <CardDescription> Importo spesa </CardDescription>
       </CardHeader>
       <CardContent class="space-y-4">
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div class="grid gap-2">
-            <Label for="amount">Importo *</Label>
-            <Input
-              id="amount"
-              v-model="form.amount"
-              name="amount"
-              type="number"
-              step="0.01"
-              min="0.01"
-              placeholder="0.00"
-              required
-              :class="{ 'border-red-500': errors.amount }"
-            />
-            <InputError :message="errors.amount" />
-          </div>
-
-          <div class="grid gap-2">
-            <Label for="vat_amount">IVA</Label>
-            <Input
-              id="vat_amount"
-              v-model="form.vat_amount"
-              name="vat_amount"
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              :class="{ 'border-red-500': errors.vat_amount }"
-            />
-            <p class="text-xs text-muted-foreground">
-              IVA a scopo informativo, non deducibile in forfettario
-            </p>
-            <InputError :message="errors.vat_amount" />
-          </div>
-        </div>
-
-        <div class="flex items-center space-x-2">
-          <input
-            id="is_deductible"
-            v-model="form.is_deductible"
-            type="checkbox"
-            class="h-4 w-4 rounded border-gray-300"
+        <div class="grid gap-2">
+          <Label for="amount">Importo *</Label>
+          <Input
+            id="amount"
+            v-model="form.amount"
+            name="amount"
+            type="number"
+            step="0.01"
+            min="0.01"
+            placeholder="0.00"
+            required
+            :class="{ 'border-red-500': errors.amount }"
           />
-          <Label for="is_deductible" class="cursor-pointer">
-            Spesa deducibile
-          </Label>
+          <InputError :message="errors.amount" />
         </div>
       </CardContent>
     </Card>
@@ -220,8 +188,6 @@ interface Expense {
   description: string;
   supplier: string;
   amount: number;
-  vat_amount: number;
-  is_deductible: boolean;
   notes: string;
 }
 
@@ -252,8 +218,6 @@ const form = reactive<Expense>({
   description: '',
   supplier: '',
   amount: 0,
-  vat_amount: 0,
-  is_deductible: true,
   notes: '',
 });
 

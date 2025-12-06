@@ -19,8 +19,6 @@ class ExpenseDto extends Data
         public string $description,
         public ?string $supplier,
         public float $amount,
-        public float $vat_amount,
-        public bool $is_deductible,
         public ?string $notes,
         public Carbon $created_at,
         public Carbon $updated_at,
@@ -41,21 +39,11 @@ class ExpenseDto extends Data
             description: $expense->description,
             supplier: $expense->supplier,
             amount: (float) $expense->amount,
-            vat_amount: (float) $expense->vat_amount,
-            is_deductible: $expense->is_deductible,
             notes: $expense->notes,
             created_at: $expense->created_at,
             updated_at: $expense->updated_at,
             expenseCategory: $expense->expenseCategory ? ExpenseCategoryDto::fromModel($expense->expenseCategory) : null,
         );
-    }
-
-    /**
-     * Check if expense has VAT
-     */
-    public function hasVat(): bool
-    {
-        return $this->vat_amount > 0;
     }
 
     /**

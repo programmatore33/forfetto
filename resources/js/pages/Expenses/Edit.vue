@@ -55,8 +55,6 @@ interface Expense {
   description: string;
   supplier: string | null;
   amount: number;
-  vat_amount: number;
-  is_deductible: boolean;
   notes: string | null;
 }
 

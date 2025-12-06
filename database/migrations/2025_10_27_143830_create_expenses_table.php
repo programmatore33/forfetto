@@ -20,8 +20,6 @@ return new class extends Migration
             $table->text('description');
             $table->string('supplier')->nullable();
             $table->decimal('amount', 10, 2);
-            $table->decimal('vat_amount', 10, 2)->default(0.00)->comment('For info only, not deductible');
-            $table->boolean('is_deductible')->default(true);
             $table->text('notes')->nullable();
             $table->timestamps();
 

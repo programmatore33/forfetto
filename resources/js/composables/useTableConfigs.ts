@@ -174,13 +174,6 @@ export const useExpenseTableConfig = () => {
       width: 'min-w-32',
       type: 'currency',
     },
-    {
-      field: 'is_deductible',
-      header: 'Deducibilità',
-      sortable: true,
-      width: 'min-w-32',
-      type: 'boolean',
-    },
   ];
 
   const actions: TableActions = {

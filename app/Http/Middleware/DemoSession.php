@@ -79,10 +79,10 @@ class DemoSession
             'expires_at' => $expiresAt,
         ]);
 
-        // Store session ID in both cookie and session
+        // Store session ID in both cookie and session BEFORE populating data
         $this->setDemoSessionCookieAndSession($sessionId);
 
-        // Populate demo data
+        // Populate demo data (now the cookie is available)
         $this->populateDemoData($user->id, $sessionId);
     }
 
@@ -91,7 +91,11 @@ class DemoSession
      */
     private function setDemoSessionCookieAndSession(string $sessionId): void
     {
+        // Queue cookie for the response
         cookie()->queue('demo_session_id', $sessionId, 60 * 24); // 24 hours
+
+        // Also set in current request so it's available during seeding
+        request()->cookies->set('demo_session_id', $sessionId);
     }
 
     /**

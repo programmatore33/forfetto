@@ -45,23 +45,12 @@ class InvoiceController extends Controller
             ->orderBy('business_name')
             ->get();
 
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
-
+        // Get ATECO codes for the authenticated user (automatically filtered by HasUserScope)
         $atecoCodes = AtecoCode::query()
-            ->whereHas('users', fn ($q) => $q->where('users.id', $user->id))
-            ->select('id', 'code', 'description', 'profitability_coefficient')
-            ->get()
-            ->map(function ($ateco) use ($user) {
-                $ateco->is_primary = $user
-                    ->atecoCodes()
-                    ->where('ateco_codes.id', $ateco->id)
-                    ->first()
-                    ?->pivot
-                    ->is_primary ?? false;
-
-                return $ateco;
-            });
+            ->select('id', 'ateco_code', 'description', 'profitability_coeff', 'is_primary')
+            ->orderBy('is_primary', 'desc')
+            ->orderBy('ateco_code')
+            ->get();
 
         return Inertia::render('Invoices/Create', [
             'customers' => $customers,
@@ -108,23 +97,12 @@ class InvoiceController extends Controller
             ->orderBy('business_name')
             ->get();
 
-        /** @var \App\Models\User $editUser */
-        $editUser = auth()->user();
-
+        // Get ATECO codes for the authenticated user (automatically filtered by HasUserScope)
         $atecoCodes = AtecoCode::query()
-            ->whereHas('users', fn ($q) => $q->where('users.id', $editUser->id))
-            ->select('id', 'code', 'description', 'profitability_coefficient')
-            ->get()
-            ->map(function ($ateco) use ($editUser) {
-                $ateco->is_primary = $editUser
-                    ->atecoCodes()
-                    ->where('ateco_codes.id', $ateco->id)
-                    ->first()
-                    ?->pivot
-                    ->is_primary ?? false;
-
-                return $ateco;
-            });
+            ->select('id', 'ateco_code', 'description', 'profitability_coeff', 'is_primary')
+            ->orderBy('is_primary', 'desc')
+            ->orderBy('ateco_code')
+            ->get();
 
         return Inertia::render('Invoices/Edit', [
             'invoice' => $invoiceDto,

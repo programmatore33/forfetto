@@ -10,11 +10,11 @@
     "format:check": "prettier --check resources/",
     "lint": "eslint . --fix",
     "prepare": "husky",
-    "release": "release-it",
-    "release:minor": "release-it minor",
-    "release:major": "release-it major",
-    "release:patch": "release-it patch",
-    "release:dry": "release-it --dry-run"
+    "release": "release-it --config .release-it-config.js",
+    "release:minor": "release-it minor --config .release-it-config.js",
+    "release:major": "release-it major --config .release-it-config.js",
+    "release:patch": "release-it patch --config .release-it-config.js",
+    "release:dry": "release-it --dry-run --config .release-it-config.js"
   },
   "lint-staged": {
     "*.{js,ts,vue}": [
@@ -77,5 +77,6 @@
     "@tailwindcss/oxide-win32-x64-msvc": "^4.0.1",
     "lightningcss-linux-x64-gnu": "^1.29.1",
     "lightningcss-win32-x64-msvc": "^1.29.1"
-  }
+  },
+  "version": "0.1.0"
 }

@@ -142,9 +142,11 @@ class InputInvoiceDto extends Data
                     $user = auth()->user();
                     $userId = $user->id;
                     $invoiceId = request()->route('invoice')?->id;
+                    $sessionId = $user->is_demo ? request()->cookie('demo_session_id') : null;
 
                     $exists = Invoice::query()
                         ->where('user_id', $userId)
+                        ->when($sessionId, fn ($q) => $q->where('session_id', $sessionId))
                         ->where('invoice_number', $value)
                         ->when($invoiceId, fn ($q) => $q->where('id', '!=', $invoiceId))
                         ->exists();

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Settings\AtecoController;
+use App\Http\Controllers\Settings\FiscalSettingsController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\TwoFactorAuthenticationController;
@@ -25,4 +27,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('settings/two-factor', [TwoFactorAuthenticationController::class, 'show'])
         ->name('two-factor.show');
+
+    Route::get('settings/fiscal', [FiscalSettingsController::class, 'edit'])
+        ->name('settings.fiscal.edit');
+    Route::put('settings/fiscal', [FiscalSettingsController::class, 'update'])
+        ->name('settings.fiscal.update');
+    Route::post('settings/fiscal/ateco', [AtecoController::class, 'store'])
+        ->name('settings.fiscal.ateco.store');
 });

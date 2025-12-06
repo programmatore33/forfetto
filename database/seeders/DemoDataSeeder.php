@@ -2,11 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ProfessionalFundEnum;
 use App\Models\AtecoCode;
 use App\Models\Customer;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -41,6 +43,7 @@ class DemoDataSeeder extends Seeder
         $this->createSessionCustomers($user, $sessionId);
         $this->createSessionInvoices($user, $sessionId);
         $this->createSessionExpenses($user, $sessionId);
+        $this->createSessionSettings($user, $sessionId);
     }
 
     /**
@@ -142,6 +145,23 @@ class DemoDataSeeder extends Seeder
         }
     }
 
+    private function createSessionSettings(User $user, string $sessionId): void
+    {
+        $atecoCode = AtecoCode::where('user_id', $user->id)
+            ->where('session_id', $sessionId)
+            ->first();
+
+        Setting::create([
+            'user_id' => $user->id,
+            'session_id' => $sessionId,
+            'ateco_code_id' => $atecoCode?->id,
+            'invoice_number_format' => '{year}/{seq:3}',
+            'professional_fund' => ProfessionalFundEnum::GESTIONE_SEPARATA_INPS->value,
+            'reduced_contributions' => true,
+            'startup_rate' => true,
+        ]);
+    }
+
     private function createDemoUsers(): void
     {
         // Create the main demo user (no data, will be populated at login)
@@ -199,6 +219,30 @@ class DemoDataSeeder extends Seeder
         $this->createCustomers($user);
         $this->createInvoices($user);
         $this->createExpenses($user);
+        $this->createSettings($user, $type);
+    }
+
+    private function createSettings(User $user, string $type): void
+    {
+        $fund = match ($type) {
+            'developer' => ProfessionalFundEnum::GESTIONE_SEPARATA_INPS,
+            'marketer' => ProfessionalFundEnum::GESTIONE_SEPARATA_INPS,
+            'artisan' => ProfessionalFundEnum::INPS_ARTIGIANI,
+            default => ProfessionalFundEnum::GESTIONE_SEPARATA_INPS,
+        };
+
+        $startup = $type === 'developer';
+
+        $atecoId = $user->atecoCodes()->first()?->id;
+
+        Setting::create([
+            'user_id' => $user->id,
+            'ateco_code_id' => $atecoId,
+            'invoice_number_format' => '{year}/{seq:3}',
+            'professional_fund' => $fund->value,
+            'reduced_contributions' => $startup,
+            'startup_rate' => $startup,
+        ]);
     }
 
     private function createAtecoCode(User $user, string $type): void

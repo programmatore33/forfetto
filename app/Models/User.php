@@ -85,6 +85,19 @@ class User extends Authenticatable
         return $this->hasMany(ExpenseCategory::class);
     }
 
+    public function settings(): HasMany
+    {
+        return $this->hasMany(Setting::class);
+    }
+
+    /**
+     * Get the active settings for the current context (user or demo session).
+     */
+    public function activeSetting(): ?Setting
+    {
+        return $this->settings()->first();
+    }
+
     /**
      * Get user sessions for demo users.
      */

@@ -10,6 +10,8 @@ use App\Models\AtecoCode;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Services\InvoiceIndexService;
+use App\Services\InvoiceNumberService;
+use App\Services\SettingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,7 +21,9 @@ use Inertia\Response;
 class InvoiceController extends Controller
 {
     public function __construct(
-        private InvoiceIndexService $invoiceIndexService
+        private InvoiceIndexService $invoiceIndexService,
+        private InvoiceNumberService $invoiceNumberService,
+        private SettingService $settingService,
     ) {}
 
     /**
@@ -40,6 +44,7 @@ class InvoiceController extends Controller
      */
     public function create(): Response
     {
+        $settings = $this->settingService->getActiveSettings(auth()->user());
         $customers = Customer::query()
             ->select('id', 'business_name', 'vat_number', 'tax_code')
             ->orderBy('business_name')
@@ -55,6 +60,7 @@ class InvoiceController extends Controller
         return Inertia::render('Invoices/Create', [
             'customers' => $customers,
             'atecoCodes' => $atecoCodes,
+            'settings' => $settings,
         ]);
     }
 
@@ -91,6 +97,7 @@ class InvoiceController extends Controller
     {
         $invoice->load(['customer', 'atecoCode']);
         $invoiceDto = InvoiceDto::from($invoice);
+        $settings = $this->settingService->getActiveSettings(auth()->user());
 
         $customers = Customer::query()
             ->select('id', 'business_name', 'vat_number', 'tax_code')
@@ -109,6 +116,7 @@ class InvoiceController extends Controller
             'customers' => $customers,
             'atecoCodes' => $atecoCodes,
             'atecoCode' => $invoice->atecoCode,
+            'settings' => $settings,
         ]);
     }
 
@@ -142,23 +150,7 @@ class InvoiceController extends Controller
     public function getNextInvoiceNumber(Request $request): JsonResponse
     {
         $year = $request->input('year', date('Y'));
-
-        // Get max invoice number for current user and year
-        $maxInvoice = Invoice::query()
-            ->where('invoice_number', 'LIKE', "{$year}/%")
-            ->orderByRaw('CAST(SUBSTRING_INDEX(invoice_number, "/", -1) AS UNSIGNED) DESC')
-            ->first();
-
-        if ($maxInvoice) {
-            // Extract number part and increment
-            $parts = explode('/', $maxInvoice->invoice_number);
-            $number = isset($parts[1]) ? (int) $parts[1] : 0;
-            $nextNumber = $number + 1;
-        } else {
-            $nextNumber = 1;
-        }
-
-        $invoiceNumber = sprintf('%s/%03d', $year, $nextNumber);
+        $invoiceNumber = $this->invoiceNumberService->generateNextNumber($request->user(), (int) $year);
 
         return response()->json([
             'invoice_number' => $invoiceNumber,

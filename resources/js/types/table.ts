@@ -4,7 +4,14 @@ export interface TableColumn {
   sortable?: boolean;
   width?: string;
   align?: 'left' | 'center' | 'right';
-  type?: 'text' | 'email' | 'phone' | 'date' | 'custom';
+  type?:
+    | 'text'
+    | 'email'
+    | 'phone'
+    | 'date'
+    | 'currency'
+    | 'boolean'
+    | 'custom';
 }
 
 export interface TableMeta {

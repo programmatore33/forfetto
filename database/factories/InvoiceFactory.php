@@ -37,10 +37,25 @@ class InvoiceFactory extends Factory
             'Supporto tecnico',
         ];
 
+        $hasCustomer = fake()->boolean(80); // 80% with customer
+
         return [
             'user_id' => User::factory(),
-            'customer_id' => fake()->boolean(80) ? Customer::factory() : null, // 80% with customer
+            'customer_id' => $hasCustomer ? Customer::factory() : null,
             'ateco_code_id' => AtecoCode::factory(),
+            // Customer snapshot - will be populated in configure()
+            'customer_business_name' => fake('it_IT')->company(),
+            'customer_email' => fake()->boolean(70) ? fake()->safeEmail() : null,
+            'customer_vat_number' => fake()->boolean(80) ? fake()->numerify('###########') : null,
+            'customer_tax_code' => fake()->boolean(60) ? strtoupper(fake()->bothify('??????##?##?###?')) : null,
+            'customer_address' => fake()->boolean(60) ? fake('it_IT')->streetAddress() : null,
+            'customer_city' => fake()->boolean(70) ? fake('it_IT')->city() : null,
+            'customer_province' => fake()->boolean(70) ? strtoupper(fake()->lexify('??')) : null,
+            'customer_postal_code' => fake()->boolean(70) ? fake()->numerify('#####') : null,
+            'customer_country' => 'IT',
+            'customer_phone' => fake()->boolean(60) ? fake('it_IT')->phoneNumber() : null,
+            'customer_pec' => fake()->boolean(40) ? fake()->safeEmail() : null,
+            'customer_sdi_code' => fake()->boolean(40) ? strtoupper(fake()->bothify('?######')) : null,
             'invoice_number' => $this->generateInvoiceNumber(),
             'issue_date' => fake()->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
             'payment_date' => fake()->boolean(70) ? fake()->dateTimeBetween('-6 months', 'now')->format('Y-m-d') : null,
@@ -143,5 +158,30 @@ class InvoiceFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'issue_date' => fake()->dateTimeBetween('-3 months', 'now')->format('Y-m-d'),
         ]);
+    }
+
+    /**
+     * Configure the factory to populate customer snapshot from relationship.
+     */
+    public function configure(): static
+    {
+        return $this->afterMaking(function ($invoice) {
+            // If customer_id is set, populate snapshot from customer
+            if ($invoice->customer_id && $invoice->customer) {
+                $customer = $invoice->customer;
+                $invoice->customer_business_name = $customer->business_name;
+                $invoice->customer_email = $customer->email;
+                $invoice->customer_vat_number = $customer->vat_number;
+                $invoice->customer_tax_code = $customer->tax_code;
+                $invoice->customer_address = $customer->address;
+                $invoice->customer_city = $customer->city;
+                $invoice->customer_province = $customer->province;
+                $invoice->customer_postal_code = $customer->postal_code;
+                $invoice->customer_country = $customer->country;
+                $invoice->customer_phone = $customer->phone;
+                $invoice->customer_pec = $customer->pec;
+                $invoice->customer_sdi_code = $customer->sdi_code;
+            }
+        });
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Dtos\CustomerDto;
 use App\Dtos\Input\InputCustomerDto;
 use App\Dtos\Input\InputIndexDto;
+use App\Dtos\PaginatedResponseDto;
 use App\Models\Customer;
 use App\Services\CustomerIndexService;
 use Illuminate\Http\RedirectResponse;
@@ -25,15 +26,7 @@ class CustomerController extends Controller
         $result = $this->customerIndexService->getCustomers($inputIndexDto);
 
         return Inertia::render('Customers/Index', [
-            'customers' => [
-                'data' => $result['data'],
-                'total' => $result['meta']['total'],
-                'per_page' => $result['meta']['per_page'],
-                'current_page' => $result['meta']['current_page'],
-                'last_page' => $result['meta']['last_page'],
-                'from' => $result['meta']['from'],
-                'to' => $result['meta']['to'],
-            ],
+            'customers' => PaginatedResponseDto::fromServiceResult($result),
             'filters' => $result['filters'],
         ]);
     }

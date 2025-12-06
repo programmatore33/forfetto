@@ -15,8 +15,23 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('session_id')->nullable()->comment('Demo session ID for demo users');
-            $table->foreignId('customer_id')->nullable()->constrained()->onDelete('set null')->comment('NULL for occasional customer');
+            $table->foreignId('customer_id')->nullable()->constrained()->onDelete('set null')->comment('Reference to customer, NULL for occasional');
             $table->foreignId('ateco_code_id')->constrained('ateco_codes')->onDelete('restrict')->comment('Link to ATECO code');
+
+            // Customer data snapshot at invoice time
+            $table->string('customer_business_name', 255);
+            $table->string('customer_email', 255)->nullable();
+            $table->string('customer_vat_number', 20)->nullable();
+            $table->string('customer_tax_code', 20)->nullable();
+            $table->text('customer_address')->nullable();
+            $table->string('customer_city', 100)->nullable();
+            $table->string('customer_province', 2)->nullable();
+            $table->string('customer_postal_code', 10)->nullable();
+            $table->string('customer_country', 2)->nullable()->default('IT');
+            $table->string('customer_phone', 30)->nullable();
+            $table->string('customer_pec', 255)->nullable();
+            $table->string('customer_sdi_code', 7)->nullable();
+
             $table->string('invoice_number', 50);
             $table->date('issue_date');
             $table->date('payment_date')->nullable()->comment('When actually paid');

@@ -35,7 +35,7 @@ return new class extends Migration
             $table->string('invoice_number', 50);
             $table->date('issue_date');
             $table->date('payment_date')->nullable()->comment('When actually paid');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->decimal('amount', 10, 2);
             // Contributo integrativo: flag + amount (percentuale gestita nelle settings)
             $table->boolean('contributo_integrativo_applied')->default(false);

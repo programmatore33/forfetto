@@ -76,16 +76,17 @@
           </div>
 
           <div class="grid gap-2">
-            <Label for="description">Descrizione *</Label>
+            <Label for="description">Descrizione</Label>
             <textarea
               id="description"
               v-model="form.description"
               name="description"
-              placeholder="Descrizione del servizio o prodotto..."
+              placeholder="Descrizione"
               rows="3"
-              required
               class="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-              :class="{ 'border-red-500': errors.description }"
+              :class="{
+                'border-red-500': errors.description,
+              }"
             />
             <InputError :message="errors.description" />
           </div>

@@ -105,8 +105,8 @@ class InputInvoiceDto extends Data
         public ?string $customer_sdi_code = null,
 
         // Invoice fields
-        #[Required]
-        public string $description = '',
+        #[Sometimes, Nullable]
+        public ?string $description = '',
 
         #[Required, Min(0.01)]
         public float $amount = 0,

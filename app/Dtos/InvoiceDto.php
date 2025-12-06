@@ -46,6 +46,8 @@ class InvoiceDto extends Data
         public Carbon $updated_at,
         // Relationships
         public ?CustomerDto $customer = null,
+        /** @var InvoiceItemDto[] */
+        public array $items = [],
     ) {}
 
     /**
@@ -84,6 +86,9 @@ class InvoiceDto extends Data
             created_at: $invoice->created_at,
             updated_at: $invoice->updated_at,
             customer: $invoice->customer ? CustomerDto::fromModel($invoice->customer) : null,
+            items: $invoice->relationLoaded('items')
+                ? InvoiceItemDto::collect($invoice->items)->toArray()
+                : [],
         );
     }
 

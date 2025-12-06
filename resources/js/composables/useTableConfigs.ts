@@ -1,5 +1,5 @@
 import type { TableActions, TableColumn } from '@/types/table';
-import { FileText, Receipt, Users } from 'lucide-vue-next';
+import { FileText, Package, Receipt, Users } from 'lucide-vue-next';
 
 // Customer table configuration
 export const useCustomerTableConfig = () => {
@@ -195,6 +195,58 @@ export const useExpenseTableConfig = () => {
     createButtonText: 'Aggiungi la prima spesa',
     deleteConfirmMessage: 'Sei sicuro di voler eliminare questa spesa?',
     routePrefix: 'expenses',
+  };
+};
+
+// Product table configuration
+export const useProductTableConfig = () => {
+  const columns: TableColumn[] = [
+    {
+      field: 'code',
+      header: 'Codice',
+      sortable: true,
+      width: 'min-w-32',
+    },
+    {
+      field: 'name',
+      header: 'Nome',
+      sortable: true,
+      width: 'min-w-48',
+    },
+    {
+      field: 'description',
+      header: 'Descrizione',
+      sortable: false,
+      width: 'min-w-64',
+    },
+    {
+      field: 'unit_price',
+      header: 'Prezzo Unitario',
+      sortable: true,
+      width: 'min-w-32',
+      type: 'currency',
+    },
+  ];
+
+  const actions: TableActions = {
+    edit: true,
+    delete: true,
+  };
+
+  return {
+    columns,
+    actions,
+    title: 'Lista Prodotti',
+    entityName: 'prodotto',
+    entityPlural: 'prodotti',
+    searchPlaceholder: 'Cerca prodotti...',
+    emptyTitle: 'Nessun prodotto trovato',
+    emptyDescription:
+      'Non ci sono prodotti che corrispondono ai criteri di ricerca.',
+    emptyIcon: Package,
+    createButtonText: 'Aggiungi il primo prodotto',
+    deleteConfirmMessage: 'Sei sicuro di voler eliminare questo prodotto?',
+    routePrefix: 'products',
   };
 };
 

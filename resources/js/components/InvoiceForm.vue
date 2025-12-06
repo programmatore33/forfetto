@@ -1,342 +1,441 @@
 <template>
   <form @submit.prevent="onSubmit" class="space-y-6">
-    <!-- Invoice Data -->
-    <Card>
-      <CardHeader>
-        <CardTitle class="flex items-center gap-2">
-          <FileText class="h-5 w-5" />
-          Dati Fattura
-        </CardTitle>
-        <CardDescription> Numero fattura, data e codice ATECO </CardDescription>
-      </CardHeader>
-      <CardContent class="space-y-4">
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div class="grid gap-2">
-            <Label for="invoice_number">Numero Fattura *</Label>
-            <div class="flex gap-2">
-              <Input
-                id="invoice_number"
-                v-model="form.invoice_number"
-                name="invoice_number"
-                placeholder="2025/001"
-                required
-                :class="{ 'border-red-500': errors.invoice_number }"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                @click="suggestInvoiceNumber"
-                :disabled="loadingNumber"
-              >
-                {{ loadingNumber ? 'Caricamento...' : 'Suggerisci' }}
-              </Button>
+    <!-- Two Column Layout for Invoice and Customer Data -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <!-- Invoice Data -->
+      <Card>
+        <CardHeader>
+          <CardTitle class="flex items-center gap-2">
+            <FileText class="h-5 w-5" />
+            Dati Fattura
+          </CardTitle>
+          <CardDescription>
+            Numero fattura, data e codice ATECO
+          </CardDescription>
+        </CardHeader>
+        <CardContent class="space-y-4">
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="grid gap-2">
+              <Label for="invoice_number">Numero Fattura *</Label>
+              <div class="flex gap-2">
+                <Input
+                  id="invoice_number"
+                  v-model="form.invoice_number"
+                  name="invoice_number"
+                  placeholder="2025/001"
+                  required
+                  :class="{ 'border-red-500': errors.invoice_number }"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  @click="suggestInvoiceNumber"
+                  :disabled="loadingNumber"
+                >
+                  {{ loadingNumber ? 'Caricamento...' : 'Suggerisci' }}
+                </Button>
+              </div>
+              <InputError :message="errors.invoice_number" />
             </div>
-            <InputError :message="errors.invoice_number" />
+
+            <div class="grid gap-2">
+              <Label for="issue_date">Data Emissione *</Label>
+              <Input
+                id="issue_date"
+                v-model="form.issue_date"
+                name="issue_date"
+                type="date"
+                required
+                :class="{ 'border-red-500': errors.issue_date }"
+              />
+              <InputError :message="errors.issue_date" />
+            </div>
           </div>
 
           <div class="grid gap-2">
-            <Label for="issue_date">Data Emissione *</Label>
-            <Input
-              id="issue_date"
-              v-model="form.issue_date"
-              name="issue_date"
-              type="date"
+            <Label for="customer_id">Cliente</Label>
+            <select
+              id="customer_id"
+              v-model="form.customer_id"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              :class="{ 'border-red-500': errors.customer_id }"
+            >
+              <option :value="null">Nessuno - inserimento manuale</option>
+              <option
+                v-for="customer in customers"
+                :key="customer.id"
+                :value="customer.id"
+              >
+                {{ customer.business_name }}
+                <template v-if="customer.vat_number">
+                  - P.IVA: {{ customer.vat_number }}
+                </template>
+              </option>
+            </select>
+            <InputError :message="errors.customer_id" />
+          </div>
+
+          <div class="grid gap-2">
+            <Label for="ateco_code_id">Codice ATECO *</Label>
+            <select
+              id="ateco_code_id"
+              v-model="form.ateco_code_id"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              :class="{ 'border-red-500': errors.ateco_code_id }"
               required
-              :class="{ 'border-red-500': errors.issue_date }"
-            />
-            <InputError :message="errors.issue_date" />
+            >
+              <option value="">Seleziona codice ATECO</option>
+              <option
+                v-for="ateco in atecoCodes"
+                :key="ateco.id"
+                :value="ateco.id"
+              >
+                {{ ateco.code }} - {{ ateco.description }}
+                <template v-if="ateco.is_primary"> (Primario)</template>
+              </option>
+            </select>
+            <InputError :message="errors.ateco_code_id" />
           </div>
-        </div>
 
-        <div class="grid gap-2">
-          <Label for="customer_id">Cliente</Label>
-          <select
-            id="customer_id"
-            v-model="form.customer_id"
-            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-            :class="{ 'border-red-500': errors.customer_id }"
-          >
-            <option :value="null">Nessuno - inserimento manuale</option>
-            <option
-              v-for="customer in customers"
-              :key="customer.id"
-              :value="customer.id"
-            >
-              {{ customer.business_name }}
-              <template v-if="customer.vat_number">
-                - P.IVA: {{ customer.vat_number }}
-              </template>
-            </option>
-          </select>
-          <InputError :message="errors.customer_id" />
-        </div>
+          <div class="grid gap-2">
+            <Label for="description">Descrizione *</Label>
+            <textarea
+              id="description"
+              v-model="form.description"
+              name="description"
+              placeholder="Descrizione del servizio o prodotto..."
+              rows="3"
+              required
+              class="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              :class="{ 'border-red-500': errors.description }"
+            />
+            <InputError :message="errors.description" />
+          </div>
+        </CardContent>
+      </Card>
 
-        <div class="grid gap-2">
-          <Label for="ateco_code_id">Codice ATECO *</Label>
-          <select
-            id="ateco_code_id"
-            v-model="form.ateco_code_id"
-            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-            :class="{ 'border-red-500': errors.ateco_code_id }"
-            required
-          >
-            <option value="">Seleziona codice ATECO</option>
-            <option
-              v-for="ateco in atecoCodes"
-              :key="ateco.id"
-              :value="ateco.id"
-            >
-              {{ ateco.code }} - {{ ateco.description }}
-              <template v-if="ateco.is_primary"> (Primario)</template>
-            </option>
-          </select>
-          <InputError :message="errors.ateco_code_id" />
-        </div>
+      <!-- Customer Data Snapshot -->
+      <Card>
+        <CardHeader>
+          <CardTitle class="flex items-center gap-2">
+            <Building class="h-5 w-5" />
+            Dati Cliente
+          </CardTitle>
+          <CardDescription>
+            Dati del cliente al momento della fattura
+          </CardDescription>
+        </CardHeader>
+        <CardContent class="space-y-4">
+          <div class="grid gap-2">
+            <Label for="customer_business_name">Ragione Sociale *</Label>
+            <Input
+              id="customer_business_name"
+              v-model="form.customer_business_name"
+              name="customer_business_name"
+              placeholder="Nome cliente"
+              required
+              :class="{ 'border-red-500': errors.customer_business_name }"
+            />
+            <InputError :message="errors.customer_business_name" />
+          </div>
 
-        <div class="grid gap-2">
-          <Label for="description">Descrizione *</Label>
-          <textarea
-            id="description"
-            v-model="form.description"
-            name="description"
-            placeholder="Descrizione del servizio o prodotto..."
-            rows="3"
-            required
-            class="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-            :class="{ 'border-red-500': errors.description }"
-          />
-          <InputError :message="errors.description" />
-        </div>
-      </CardContent>
-    </Card>
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="grid gap-2">
+              <Label for="customer_vat_number">Partita IVA</Label>
+              <Input
+                id="customer_vat_number"
+                v-model="form.customer_vat_number"
+                name="customer_vat_number"
+                placeholder="12345678901"
+                maxlength="20"
+                :class="{ 'border-red-500': errors.customer_vat_number }"
+              />
+              <InputError :message="errors.customer_vat_number" />
+            </div>
 
-    <!-- Customer Data Snapshot -->
+            <div class="grid gap-2">
+              <Label for="customer_tax_code">Codice Fiscale</Label>
+              <Input
+                id="customer_tax_code"
+                v-model="form.customer_tax_code"
+                name="customer_tax_code"
+                placeholder="RSSMRA80A01H501M"
+                maxlength="20"
+                :class="{ 'border-red-500': errors.customer_tax_code }"
+              />
+              <InputError :message="errors.customer_tax_code" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="grid gap-2">
+              <Label for="customer_email">Email</Label>
+              <Input
+                id="customer_email"
+                v-model="form.customer_email"
+                name="customer_email"
+                type="email"
+                placeholder="cliente@esempio.it"
+                :class="{ 'border-red-500': errors.customer_email }"
+              />
+              <InputError :message="errors.customer_email" />
+            </div>
+
+            <div class="grid gap-2">
+              <Label for="customer_phone">Telefono</Label>
+              <Input
+                id="customer_phone"
+                v-model="form.customer_phone"
+                name="customer_phone"
+                placeholder="+39 123 456 7890"
+                :class="{ 'border-red-500': errors.customer_phone }"
+              />
+              <InputError :message="errors.customer_phone" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="grid gap-2">
+              <Label for="customer_pec">PEC</Label>
+              <Input
+                id="customer_pec"
+                v-model="form.customer_pec"
+                name="customer_pec"
+                type="email"
+                placeholder="cliente@pec.it"
+                :class="{ 'border-red-500': errors.customer_pec }"
+              />
+              <InputError :message="errors.customer_pec" />
+            </div>
+
+            <div class="grid gap-2">
+              <Label for="customer_sdi_code">Codice SDI</Label>
+              <Input
+                id="customer_sdi_code"
+                v-model="form.customer_sdi_code"
+                name="customer_sdi_code"
+                placeholder="ABCDEFG"
+                maxlength="7"
+                :class="{ 'border-red-500': errors.customer_sdi_code }"
+              />
+              <InputError :message="errors.customer_sdi_code" />
+            </div>
+          </div>
+
+          <div class="grid gap-2">
+            <Label for="customer_address">Indirizzo</Label>
+            <Input
+              id="customer_address"
+              v-model="form.customer_address"
+              name="customer_address"
+              placeholder="Via Roma, 123"
+              :class="{ 'border-red-500': errors.customer_address }"
+            />
+            <InputError :message="errors.customer_address" />
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div class="grid gap-2 md:col-span-2">
+              <Label for="customer_city">Città</Label>
+              <Input
+                id="customer_city"
+                v-model="form.customer_city"
+                name="customer_city"
+                placeholder="Milano"
+                :class="{ 'border-red-500': errors.customer_city }"
+              />
+              <InputError :message="errors.customer_city" />
+            </div>
+
+            <div class="grid gap-2">
+              <Label for="customer_postal_code">CAP</Label>
+              <Input
+                id="customer_postal_code"
+                v-model="form.customer_postal_code"
+                name="customer_postal_code"
+                placeholder="20100"
+                maxlength="10"
+                :class="{ 'border-red-500': errors.customer_postal_code }"
+              />
+              <InputError :message="errors.customer_postal_code" />
+            </div>
+
+            <div class="grid gap-2">
+              <Label for="customer_province">Provincia</Label>
+              <Input
+                id="customer_province"
+                v-model="form.customer_province"
+                name="customer_province"
+                placeholder="MI"
+                maxlength="2"
+                :class="{ 'border-red-500': errors.customer_province }"
+              />
+              <InputError :message="errors.customer_province" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+
+    <!-- Items -->
     <Card>
       <CardHeader>
-        <CardTitle class="flex items-center gap-2">
-          <Building class="h-5 w-5" />
-          Dati Cliente
-        </CardTitle>
-        <CardDescription>
-          Dati del cliente al momento della fattura
-        </CardDescription>
+        <div class="flex items-center justify-between">
+          <div>
+            <CardTitle class="flex items-center gap-2">
+              <Package class="h-5 w-5" />
+              Voci di Fattura
+            </CardTitle>
+            <CardDescription> Prodotti e servizi fatturati </CardDescription>
+          </div>
+          <Button type="button" size="sm" @click="addItem">
+            <Plus class="mr-2 h-4 w-4" />
+            Aggiungi Voce
+          </Button>
+        </div>
       </CardHeader>
-      <CardContent class="space-y-4">
-        <div class="grid gap-2">
-          <Label for="customer_business_name">Ragione Sociale *</Label>
-          <Input
-            id="customer_business_name"
-            v-model="form.customer_business_name"
-            name="customer_business_name"
-            placeholder="Nome cliente"
-            required
-            :class="{ 'border-red-500': errors.customer_business_name }"
-          />
-          <InputError :message="errors.customer_business_name" />
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div class="grid gap-2">
-            <Label for="customer_vat_number">Partita IVA</Label>
-            <Input
-              id="customer_vat_number"
-              v-model="form.customer_vat_number"
-              name="customer_vat_number"
-              placeholder="12345678901"
-              maxlength="20"
-              :class="{ 'border-red-500': errors.customer_vat_number }"
-            />
-            <InputError :message="errors.customer_vat_number" />
+      <CardContent>
+        <div class="space-y-4">
+          <!-- Items Table -->
+          <div class="rounded-md border">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-muted/50">
+                  <tr>
+                    <th class="px-3 py-2 text-left text-sm font-medium">
+                      Codice
+                    </th>
+                    <th class="px-3 py-2 text-left text-sm font-medium">
+                      Descrizione *
+                    </th>
+                    <th class="px-3 py-2 text-right text-sm font-medium">
+                      Prezzo
+                    </th>
+                    <th class="px-3 py-2 text-right text-sm font-medium">
+                      Qtà
+                    </th>
+                    <th class="px-3 py-2 text-right text-sm font-medium">
+                      Totale
+                    </th>
+                    <th
+                      class="w-12 px-3 py-2 text-center text-sm font-medium"
+                    ></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-if="form.items.length === 0">
+                    <td
+                      colspan="6"
+                      class="px-3 py-8 text-center text-sm text-muted-foreground"
+                    >
+                      Nessuna voce. Clicca "Aggiungi Voce" per iniziare.
+                    </td>
+                  </tr>
+                  <tr
+                    v-for="(item, index) in form.items"
+                    :key="index"
+                    class="border-t"
+                  >
+                    <td class="px-3 py-2">
+                      <Input
+                        v-model="item.code"
+                        type="text"
+                        placeholder="Cod."
+                        class="h-9 text-sm"
+                      />
+                    </td>
+                    <td class="px-3 py-2">
+                      <Input
+                        v-model="item.description"
+                        type="text"
+                        placeholder="Descrizione prodotto/servizio"
+                        required
+                        class="h-9 text-sm"
+                      />
+                    </td>
+                    <td class="px-3 py-2">
+                      <Input
+                        v-model.number="item.unit_price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        required
+                        class="h-9 text-right text-sm"
+                        @input="updateItemTotal(index)"
+                      />
+                    </td>
+                    <td class="px-3 py-2">
+                      <Input
+                        v-model.number="item.quantity"
+                        type="number"
+                        min="1"
+                        required
+                        class="h-9 w-20 text-right text-sm"
+                        @input="updateItemTotal(index)"
+                      />
+                    </td>
+                    <td class="px-3 py-2 text-right text-sm font-semibold">
+                      {{ item.total.toFixed(2) }} €
+                    </td>
+                    <td class="px-3 py-2 text-center">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        class="h-8 w-8"
+                        @click="removeItem(index)"
+                      >
+                        <Trash2 class="h-4 w-4 text-destructive" />
+                      </Button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          <div class="grid gap-2">
-            <Label for="customer_tax_code">Codice Fiscale</Label>
-            <Input
-              id="customer_tax_code"
-              v-model="form.customer_tax_code"
-              name="customer_tax_code"
-              placeholder="RSSMRA80A01H501M"
-              maxlength="20"
-              :class="{ 'border-red-500': errors.customer_tax_code }"
-            />
-            <InputError :message="errors.customer_tax_code" />
+          <!-- Summary -->
+          <div class="flex flex-col items-end gap-2 border-t pt-4">
+            <div class="flex w-full max-w-sm justify-between text-sm">
+              <span class="font-medium">Subtotale:</span>
+              <span class="font-semibold"
+                >{{ calculatedAmount.toFixed(2) }} €</span
+              >
+            </div>
+
+            <div class="flex w-full max-w-sm items-center justify-between">
+              <Label for="apply_contributo" class="cursor-pointer text-sm">
+                Contributo integrativo 4%
+              </Label>
+              <input
+                id="apply_contributo"
+                v-model="applyContributo"
+                type="checkbox"
+                class="h-4 w-4 rounded border-gray-300"
+              />
+            </div>
+
+            <div
+              v-if="applyContributo"
+              class="flex w-full max-w-sm justify-between text-sm"
+            >
+              <span class="font-medium">Contributo (4%):</span>
+              <span class="font-semibold"
+                >{{ calculatedContributo.toFixed(2) }} €</span
+              >
+            </div>
+
+            <div
+              class="flex w-full max-w-sm justify-between border-t pt-2 text-base"
+            >
+              <span class="font-bold">Totale Fattura:</span>
+              <span class="text-lg font-bold"
+                >{{ calculatedNetAmount.toFixed(2) }} €</span
+              >
+            </div>
           </div>
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div class="grid gap-2">
-            <Label for="customer_email">Email</Label>
-            <Input
-              id="customer_email"
-              v-model="form.customer_email"
-              name="customer_email"
-              type="email"
-              placeholder="cliente@esempio.it"
-              :class="{ 'border-red-500': errors.customer_email }"
-            />
-            <InputError :message="errors.customer_email" />
-          </div>
-
-          <div class="grid gap-2">
-            <Label for="customer_phone">Telefono</Label>
-            <Input
-              id="customer_phone"
-              v-model="form.customer_phone"
-              name="customer_phone"
-              placeholder="+39 123 456 7890"
-              :class="{ 'border-red-500': errors.customer_phone }"
-            />
-            <InputError :message="errors.customer_phone" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div class="grid gap-2">
-            <Label for="customer_pec">PEC</Label>
-            <Input
-              id="customer_pec"
-              v-model="form.customer_pec"
-              name="customer_pec"
-              type="email"
-              placeholder="cliente@pec.it"
-              :class="{ 'border-red-500': errors.customer_pec }"
-            />
-            <InputError :message="errors.customer_pec" />
-          </div>
-
-          <div class="grid gap-2">
-            <Label for="customer_sdi_code">Codice SDI</Label>
-            <Input
-              id="customer_sdi_code"
-              v-model="form.customer_sdi_code"
-              name="customer_sdi_code"
-              placeholder="ABCDEFG"
-              maxlength="7"
-              :class="{ 'border-red-500': errors.customer_sdi_code }"
-            />
-            <InputError :message="errors.customer_sdi_code" />
-          </div>
-        </div>
-
-        <div class="grid gap-2">
-          <Label for="customer_address">Indirizzo</Label>
-          <Input
-            id="customer_address"
-            v-model="form.customer_address"
-            name="customer_address"
-            placeholder="Via Roma, 123"
-            :class="{ 'border-red-500': errors.customer_address }"
-          />
-          <InputError :message="errors.customer_address" />
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <div class="grid gap-2 md:col-span-2">
-            <Label for="customer_city">Città</Label>
-            <Input
-              id="customer_city"
-              v-model="form.customer_city"
-              name="customer_city"
-              placeholder="Milano"
-              :class="{ 'border-red-500': errors.customer_city }"
-            />
-            <InputError :message="errors.customer_city" />
-          </div>
-
-          <div class="grid gap-2">
-            <Label for="customer_postal_code">CAP</Label>
-            <Input
-              id="customer_postal_code"
-              v-model="form.customer_postal_code"
-              name="customer_postal_code"
-              placeholder="20100"
-              maxlength="10"
-              :class="{ 'border-red-500': errors.customer_postal_code }"
-            />
-            <InputError :message="errors.customer_postal_code" />
-          </div>
-
-          <div class="grid gap-2">
-            <Label for="customer_province">Provincia</Label>
-            <Input
-              id="customer_province"
-              v-model="form.customer_province"
-              name="customer_province"
-              placeholder="MI"
-              maxlength="2"
-              :class="{ 'border-red-500': errors.customer_province }"
-            />
-            <InputError :message="errors.customer_province" />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-
-    <!-- Amounts -->
-    <Card>
-      <CardHeader>
-        <CardTitle class="flex items-center gap-2">
-          <Euro class="h-5 w-5" />
-          Importi
-        </CardTitle>
-        <CardDescription> Importo fattura </CardDescription>
-      </CardHeader>
-      <CardContent class="space-y-4">
-        <div class="grid gap-2">
-          <Label for="amount">Importo *</Label>
-          <Input
-            id="amount"
-            v-model="form.amount"
-            name="amount"
-            type="number"
-            step="0.01"
-            min="0.01"
-            placeholder="0.00"
-            required
-            :class="{ 'border-red-500': errors.amount }"
-          />
-          <InputError :message="errors.amount" />
-        </div>
-
-        <div class="flex items-center space-x-2">
-          <input
-            id="apply_contributo"
-            v-model="applyContributo"
-            type="checkbox"
-            class="h-4 w-4 rounded border-gray-300"
-          />
-          <Label for="apply_contributo" class="cursor-pointer">
-            Applica contributo integrativo 4%
-          </Label>
-        </div>
-
-        <div v-if="applyContributo" class="grid gap-2">
-          <Label for="contributo_integrativo_amount"
-            >Contributo Integrativo (4%)</Label
-          >
-          <Input
-            id="contributo_integrativo_amount"
-            :model-value="form.contributo_integrativo_amount"
-            name="contributo_integrativo_amount"
-            type="number"
-            step="0.01"
-            readonly
-            class="bg-muted"
-          />
-        </div>
-
-        <div class="grid gap-2">
-          <Label for="net_amount">Importo Netto</Label>
-          <Input
-            id="net_amount"
-            :model-value="form.net_amount"
-            name="net_amount"
-            type="number"
-            step="0.01"
-            readonly
-            class="bg-muted font-bold"
-          />
         </div>
       </CardContent>
     </Card>
@@ -438,10 +537,12 @@
 import {
   Building,
   CreditCard,
-  Euro,
   FileText,
+  Package,
+  Plus,
   Save,
   StickyNote,
+  Trash2,
 } from 'lucide-vue-next';
 import { computed, reactive, ref, watch } from 'vue';
 
@@ -479,6 +580,16 @@ interface AtecoCode {
   is_primary: boolean;
 }
 
+interface InvoiceItem {
+  id?: number;
+  product_id: number | null;
+  code: string;
+  description: string;
+  unit_price: number;
+  quantity: number;
+  total: number;
+}
+
 interface Invoice {
   id?: number;
   invoice_number: string;
@@ -505,6 +616,7 @@ interface Invoice {
   payment_date: string;
   payment_method: string;
   notes: string;
+  items: InvoiceItem[];
 }
 
 interface Props {
@@ -554,19 +666,31 @@ const form = reactive<Invoice>({
   payment_date: '',
   payment_method: '',
   notes: '',
+  items: [],
 });
 
 const loadingNumber = ref(false);
 const applyContributo = ref(false);
 
+// Calculated amount from items
+const calculatedAmount = computed(() => {
+  return parseFloat(
+    form.items
+      .reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
+      .toFixed(2),
+  );
+});
+
 const calculatedContributo = computed(() => {
   return applyContributo.value
-    ? parseFloat((form.amount * 0.04).toFixed(2))
+    ? parseFloat((calculatedAmount.value * 0.04).toFixed(2))
     : 0;
 });
 
 const calculatedNetAmount = computed(() => {
-  return parseFloat((form.amount + calculatedContributo.value).toFixed(2));
+  return parseFloat(
+    (calculatedAmount.value + calculatedContributo.value).toFixed(2),
+  );
 });
 
 // Computed
@@ -594,6 +718,10 @@ watch(
         payment_date: newInvoice.payment_date || '',
         payment_method: newInvoice.payment_method || '',
         notes: newInvoice.notes || '',
+        items:
+          newInvoice.items && newInvoice.items.length > 0
+            ? newInvoice.items
+            : [],
       });
       // initialize contributo flag from invoice if present
       applyContributo.value = !!newInvoice.contributo_integrativo_applied;
@@ -621,12 +749,17 @@ watch(
 
 // No withholding logic for forfettario; net_amount mirrors amount
 
-// Update calculations when amount changes
-watch([() => form.amount, applyContributo], () => {
-  form.contributo_integrativo_applied = applyContributo.value;
-  form.contributo_integrativo_amount = calculatedContributo.value;
-  form.net_amount = calculatedNetAmount.value;
-});
+// Update calculations when items or contributo changes
+watch(
+  [() => form.items, applyContributo],
+  () => {
+    form.amount = calculatedAmount.value;
+    form.contributo_integrativo_applied = applyContributo.value;
+    form.contributo_integrativo_amount = calculatedContributo.value;
+    form.net_amount = calculatedNetAmount.value;
+  },
+  { deep: true },
+);
 
 // Watch for customer selection
 watch(
@@ -670,6 +803,26 @@ const suggestInvoiceNumber = async () => {
   }
 };
 
+const addItem = () => {
+  form.items.push({
+    product_id: null,
+    code: '',
+    description: '',
+    unit_price: 0,
+    quantity: 1,
+    total: 0,
+  });
+};
+
+const removeItem = (index: number) => {
+  form.items.splice(index, 1);
+};
+
+const updateItemTotal = (index: number) => {
+  const item = form.items[index];
+  item.total = parseFloat((item.unit_price * item.quantity).toFixed(2));
+};
+
 const onSubmit = () => {
   emit('submit', form);
 };
@@ -677,4 +830,9 @@ const onSubmit = () => {
 const onCancel = () => {
   emit('cancel');
 };
+
+// Initialize with one empty item if creating new invoice
+if (!props.invoice?.id && form.items.length === 0) {
+  addItem();
+}
 </script>

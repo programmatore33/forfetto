@@ -16,7 +16,7 @@
         action="/customers"
         method="post"
         reset-on-success
-        class="max-w-4xl"
+        class="max-w-7xl"
         v-slot="{ errors, processing }"
       >
         <CustomerForm

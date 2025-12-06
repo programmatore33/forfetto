@@ -19,6 +19,7 @@ import {
   FileText,
   Folder,
   LayoutGrid,
+  Package,
   Receipt,
   Users,
 } from 'lucide-vue-next';
@@ -39,6 +40,11 @@ const mainNavItems: NavItem[] = [
     title: 'Fatture',
     href: '/invoices',
     icon: FileText,
+  },
+  {
+    title: 'Prodotti',
+    href: '/products',
+    icon: Package,
   },
   {
     title: 'Spese',

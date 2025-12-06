@@ -15,7 +15,7 @@
       <Form
         :action="`/expenses/${expense.id}`"
         method="put"
-        class="max-w-4xl"
+        class="max-w-7xl"
         v-slot="{ errors, processing }"
       >
         <ExpenseForm

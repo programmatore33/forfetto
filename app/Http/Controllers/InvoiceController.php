@@ -15,6 +15,7 @@ use App\Services\SettingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -69,7 +70,16 @@ class InvoiceController extends Controller
      */
     public function store(InputInvoiceDto $inputInvoiceDto): RedirectResponse
     {
-        Invoice::create($inputInvoiceDto->toModelArray());
+        DB::transaction(function () use ($inputInvoiceDto) {
+            $invoice = Invoice::create($inputInvoiceDto->toModelArray());
+
+            // Create invoice items
+            foreach ($inputInvoiceDto->items as $index => $itemDto) {
+                $itemData = $itemDto->toModelArray();
+                $itemData['sort_order'] = $index;
+                $invoice->items()->create($itemData);
+            }
+        });
 
         return redirect()
             ->route('invoices.index')
@@ -81,7 +91,7 @@ class InvoiceController extends Controller
      */
     public function show(Invoice $invoice): Response
     {
-        $invoice->load(['customer', 'atecoCode']);
+        $invoice->load(['customer', 'atecoCode', 'items.product']);
         $invoiceDto = InvoiceDto::from($invoice);
 
         return Inertia::render('Invoices/Show', [
@@ -125,7 +135,18 @@ class InvoiceController extends Controller
      */
     public function update(InputInvoiceDto $inputInvoiceDto, Invoice $invoice): RedirectResponse
     {
-        $invoice->update($inputInvoiceDto->toModelArray());
+        DB::transaction(function () use ($inputInvoiceDto, $invoice) {
+            $invoice->update($inputInvoiceDto->toModelArray());
+
+            // Delete old items and create new ones
+            $invoice->items()->delete();
+
+            foreach ($inputInvoiceDto->items as $index => $itemDto) {
+                $itemData = $itemDto->toModelArray();
+                $itemData['sort_order'] = $index;
+                $invoice->items()->create($itemData);
+            }
+        });
 
         return redirect()
             ->route('invoices.show', $invoice)

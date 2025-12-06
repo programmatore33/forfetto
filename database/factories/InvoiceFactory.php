@@ -164,6 +164,50 @@ class InvoiceFactory extends Factory
     }
 
     /**
+     * Invoice with items (1-5 items)
+     */
+    public function withItems(?int $itemCount = null): static
+    {
+        return $this->afterCreating(function ($invoice) use ($itemCount) {
+            $count = $itemCount ?? fake()->numberBetween(1, 5);
+
+            $items = [];
+            for ($i = 0; $i < $count; $i++) {
+                $unitPrice = fake()->randomFloat(2, 50, 2000);
+                $quantity = fake()->numberBetween(1, 5);
+                $total = round($unitPrice * $quantity, 2);
+
+                $items[] = [
+                    'invoice_id' => $invoice->id,
+                    'product_id' => null,
+                    'code' => fake()->optional(0.6)->regexify('[A-Z]{3}-[0-9]{3}'),
+                    'description' => fake()->randomElement([
+                        'Sviluppo sito web aziendale',
+                        'Consulenza tecnica specialistica',
+                        'Manutenzione server mensile',
+                        'Grafica e design logo',
+                        'Gestione social media',
+                        'Creazione contenuti SEO',
+                        'Analisi e ottimizzazione',
+                        'Formazione personale tecnico',
+                    ]),
+                    'unit_price' => $unitPrice,
+                    'quantity' => $quantity,
+                    'total' => $total,
+                    'sort_order' => $i,
+                ];
+            }
+
+            $invoice->items()->createMany($items);
+
+            // Recalculate invoice amount from items
+            $invoice->amount = $invoice->items->sum('total');
+            $invoice->net_amount = $invoice->amount + ($invoice->contributo_integrativo_applied ? $invoice->contributo_integrativo_amount : 0);
+            $invoice->saveQuietly();
+        });
+    }
+
+    /**
      * Configure the factory to populate customer snapshot from relationship.
      */
     public function configure(): static

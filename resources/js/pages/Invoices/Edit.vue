@@ -15,7 +15,7 @@
       <Form
         :action="`/invoices/${invoice.id}`"
         method="put"
-        class="max-w-4xl"
+        class="max-w-7xl"
         v-slot="{ errors, processing }"
       >
         <InvoiceForm
@@ -136,6 +136,7 @@ const invoiceForForm = computed(() => ({
   payment_date: props.invoice.payment_date?.split('T')[0] || '',
   payment_method: props.invoice.payment_method || '',
   notes: props.invoice.notes || '',
+  items: (props.invoice as any).items || [],
 }));
 
 // Event handlers

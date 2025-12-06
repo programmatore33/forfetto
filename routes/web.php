@@ -3,6 +3,7 @@
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -34,6 +35,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
      * Expense Routes
      */
     Route::resource('expenses', ExpenseController::class);
+
+    /*
+     * Product Routes
+     */
+    Route::get('products/search', [ProductController::class, 'search'])
+        ->name('products.search');
+    Route::resource('products', ProductController::class);
 
     /*
      * Color Palette Route

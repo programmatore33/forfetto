@@ -191,6 +191,66 @@
           </CardContent>
         </Card>
 
+        <!-- Items -->
+        <Card v-if="invoice.items && invoice.items.length > 0">
+          <CardHeader>
+            <CardTitle class="flex items-center gap-2">
+              <Package class="h-5 w-5" />
+              Voci di Fattura
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div class="rounded-md border">
+              <table class="w-full">
+                <thead class="bg-muted/50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-sm font-medium">
+                      Codice
+                    </th>
+                    <th class="px-4 py-3 text-left text-sm font-medium">
+                      Descrizione
+                    </th>
+                    <th class="px-4 py-3 text-right text-sm font-medium">
+                      Prezzo Unitario
+                    </th>
+                    <th class="px-4 py-3 text-right text-sm font-medium">
+                      Quantità
+                    </th>
+                    <th class="px-4 py-3 text-right text-sm font-medium">
+                      Totale
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(item, index) in invoice.items"
+                    :key="item.id"
+                    :class="{ 'border-t': index > 0 }"
+                  >
+                    <td
+                      class="px-4 py-3 font-mono text-sm text-muted-foreground"
+                    >
+                      {{ item.code || '-' }}
+                    </td>
+                    <td class="px-4 py-3 text-sm">
+                      {{ item.description }}
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm">
+                      {{ formatCurrency(item.unit_price) }}
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm">
+                      {{ item.quantity }}
+                    </td>
+                    <td class="px-4 py-3 text-right font-semibold">
+                      {{ formatCurrency(item.total) }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
         <!-- Amounts -->
         <Card>
           <CardHeader>
@@ -329,6 +389,7 @@ import {
   Edit,
   Euro,
   FileText,
+  Package,
   StickyNote,
   Trash2,
 } from 'lucide-vue-next';
@@ -342,6 +403,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouteHelper } from '@/composables/useTableConfigs';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
+
+interface InvoiceItem {
+  id: number;
+  code: string | null;
+  description: string;
+  unit_price: number;
+  quantity: number;
+  total: number;
+}
 
 interface Invoice {
   id: number;
@@ -368,6 +438,7 @@ interface Invoice {
   is_paid: boolean;
   payment_method: string | null;
   notes: string | null;
+  items: InvoiceItem[];
 }
 
 interface AtecoCode {

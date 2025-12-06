@@ -70,4 +70,9 @@ class Invoice extends Model
     {
         return $this->belongsTo(AtecoCode::class);
     }
+
+    public function items()
+    {
+        return $this->hasMany(InvoiceItem::class)->orderBy('sort_order');
+    }
 }

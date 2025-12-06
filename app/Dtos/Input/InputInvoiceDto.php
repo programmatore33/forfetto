@@ -129,6 +129,10 @@ class InputInvoiceDto extends Data
 
         #[Sometimes, Nullable]
         public ?string $notes = null,
+
+        /** @var InputInvoiceItemDto[] */
+        #[Required]
+        public array $items = [],
     ) {}
 
     /**
@@ -165,9 +169,12 @@ class InputInvoiceDto extends Data
      */
     public function toModelArray(): array
     {
-        // Calculate net amount if not provided: amount + contributo integrativo (if applied)
+        // Calculate amount from items sum
+        $calculatedAmount = collect($this->items)->sum(fn ($item) => $item->unit_price * $item->quantity);
+
+        // Calculate net amount: amount + contributo integrativo (if applied)
         $computedContributo = $this->contributo_integrativo_applied ? $this->contributo_integrativo_amount : 0;
-        $netAmount = $this->net_amount ?: ($this->amount + $computedContributo);
+        $netAmount = $calculatedAmount + $computedContributo;
 
         return [
             'customer_id' => $this->customer_id,
@@ -188,7 +195,7 @@ class InputInvoiceDto extends Data
             'issue_date' => $this->issue_date,
             'payment_date' => $this->payment_date,
             'description' => $this->description,
-            'amount' => $this->amount,
+            'amount' => $calculatedAmount,
             'contributo_integrativo_applied' => $this->contributo_integrativo_applied,
             'contributo_integrativo_amount' => $computedContributo,
             'net_amount' => $netAmount,

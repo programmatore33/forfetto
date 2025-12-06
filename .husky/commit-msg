@@ -1,2 +1,2 @@
-# Validate commit message format
-node .husky/validate-commit-msg.js $1
+# Validate commit message format using commitlint
+npx --no -- commitlint --edit $1

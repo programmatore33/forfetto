@@ -22,6 +22,7 @@
           :invoice="invoiceForForm"
           :customers="customers"
           :ateco-codes="atecoCodes"
+          :products="products"
           :errors="errors"
           :processing="processing"
           @submit="handleSubmit"
@@ -64,6 +65,14 @@ interface AtecoCode {
   is_primary: boolean;
 }
 
+interface Product {
+  id: number;
+  code: string | null;
+  name: string;
+  description: string | null;
+  unit_price: number;
+}
+
 interface Invoice {
   id: number;
   invoice_number: string;
@@ -96,6 +105,7 @@ interface Props {
   invoice: Invoice;
   customers: Customer[];
   atecoCodes: AtecoCode[];
+  products: Product[];
 }
 
 const props = defineProps<Props>();

@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
+use App\Models\Product;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -41,6 +42,7 @@ class DemoDataSeeder extends Seeder
         // Create demo data specific to this session
         $this->createSessionAtecoCode($user, $sessionId);
         $this->createSessionCustomers($user, $sessionId);
+        $this->createSessionProducts($user, $sessionId);
         $this->createSessionInvoices($user, $sessionId);
         $this->createSessionExpenses($user, $sessionId);
         $this->createSessionSettings($user, $sessionId);
@@ -77,6 +79,22 @@ class DemoDataSeeder extends Seeder
     }
 
     /**
+     * Create products for demo session.
+     */
+    private function createSessionProducts(User $user, string $sessionId): void
+    {
+        // Create 3-5 products for demo
+        $productCount = fake()->numberBetween(3, 5);
+
+        Product::factory()
+            ->count($productCount)
+            ->create([
+                'user_id' => $user->id,
+                'session_id' => $sessionId,
+            ]);
+    }
+
+    /**
      * Create invoices for demo session.
      */
     private function createSessionInvoices(User $user, string $sessionId): void
@@ -89,19 +107,26 @@ class DemoDataSeeder extends Seeder
             ->where('session_id', $sessionId)
             ->get();
 
+        $products = Product::where('user_id', $user->id)
+            ->where('session_id', $sessionId)
+            ->get();
+
         // Create 5-10 invoices for demo
         $invoiceCount = fake()->numberBetween(5, 10);
 
         for ($i = 0; $i < $invoiceCount; $i++) {
             $customer = fake()->boolean(70) && $customers->isNotEmpty() ? $customers->random() : null;
 
-            Invoice::factory()
+            $invoice = Invoice::factory()
                 ->create([
                     'user_id' => $user->id,
                     'session_id' => $sessionId,
                     'customer_id' => $customer?->id,
                     'ateco_code_id' => $atecoCode->id,
                 ]);
+
+            // Add 1-3 invoice items with products
+            $this->createInvoiceItems($invoice, $products);
         }
     }
 
@@ -217,6 +242,7 @@ class DemoDataSeeder extends Seeder
         // Wait for categories to be created by the job
         $this->createAtecoCode($user, $type);
         $this->createCustomers($user);
+        $this->createProducts($user);
         $this->createInvoices($user);
         $this->createExpenses($user);
         $this->createSettings($user, $type);
@@ -302,10 +328,26 @@ class DemoDataSeeder extends Seeder
             ->create(['user_id' => $user->id]);
     }
 
+    private function createProducts(User $user): void
+    {
+        // Create 8-15 products per user
+        $productCount = fake()->numberBetween(8, 15);
+
+        Product::factory()
+            ->count($productCount)
+            ->create(['user_id' => $user->id]);
+
+        // Create at least one product without code
+        Product::factory()
+            ->withoutCode()
+            ->create(['user_id' => $user->id]);
+    }
+
     private function createInvoices(User $user): void
     {
         $atecoCode = $user->atecoCodes()->first();
         $customers = $user->customers;
+        $products = $user->products;
 
         // Create 10-25 invoices per user
         $invoiceCount = fake()->numberBetween(10, 25);
@@ -313,16 +355,19 @@ class DemoDataSeeder extends Seeder
         for ($i = 0; $i < $invoiceCount; $i++) {
             $customer = fake()->boolean(85) ? $customers->random() : null;
 
-            Invoice::factory()
+            $invoice = Invoice::factory()
                 ->create([
                     'user_id' => $user->id,
                     'customer_id' => $customer?->id,
                     'ateco_code_id' => $atecoCode->id,
                 ]);
+
+            // Add 1-3 invoice items with products
+            $this->createInvoiceItems($invoice, $products);
         }
 
         // Create some specific invoice types
-        Invoice::factory()
+        $invoice1 = Invoice::factory()
             ->highValue()
             ->withWithholding()
             ->paid()
@@ -331,8 +376,9 @@ class DemoDataSeeder extends Seeder
                 'customer_id' => $customers->random()->id,
                 'ateco_code_id' => $atecoCode->id,
             ]);
+        $this->createInvoiceItems($invoice1, $products);
 
-        Invoice::factory()
+        $invoice2 = Invoice::factory()
             ->recent()
             ->unpaid()
             ->create([
@@ -340,6 +386,7 @@ class DemoDataSeeder extends Seeder
                 'customer_id' => $customers->random()->id,
                 'ateco_code_id' => $atecoCode->id,
             ]);
+        $this->createInvoiceItems($invoice2, $products);
     }
 
     private function createExpenses(User $user): void
@@ -420,5 +467,33 @@ class DemoDataSeeder extends Seeder
                 'user_id' => $user->id,
                 'expense_category_id' => $categories->random()->id,
             ]);
+    }
+
+    /**
+     * Create invoice items for an invoice
+     */
+    private function createInvoiceItems($invoice, $products): void
+    {
+        if ($products->isEmpty()) {
+            return;
+        }
+
+        $itemCount = fake()->numberBetween(1, 3);
+
+        for ($i = 0; $i < $itemCount; $i++) {
+            $product = $products->random();
+            $quantity = fake()->randomFloat(2, 1, 10);
+            $unitPrice = $product->unit_price;
+            $subtotal = $quantity * $unitPrice;
+
+            $invoice->items()->create([
+                'product_id' => $product->id,
+                'description' => $product->name,
+                'quantity' => $quantity,
+                'unit_price' => $unitPrice,
+                'subtotal' => $subtotal,
+                'sort_order' => $i,
+            ]);
+        }
     }
 }

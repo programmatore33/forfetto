@@ -9,6 +9,7 @@ use App\Dtos\PaginatedResponseDto;
 use App\Models\AtecoCode;
 use App\Models\Customer;
 use App\Models\Invoice;
+use App\Models\Product;
 use App\Services\InvoiceIndexService;
 use App\Services\InvoiceNumberService;
 use App\Services\SettingService;
@@ -58,9 +59,16 @@ class InvoiceController extends Controller
             ->orderBy('ateco_code')
             ->get();
 
+        // Get products for autocomplete
+        $products = Product::query()
+            ->select('id', 'code', 'name', 'description', 'unit_price')
+            ->orderBy('name')
+            ->get();
+
         return Inertia::render('Invoices/Create', [
             'customers' => $customers,
             'atecoCodes' => $atecoCodes,
+            'products' => $products,
             'settings' => $settings,
         ]);
     }
@@ -121,10 +129,17 @@ class InvoiceController extends Controller
             ->orderBy('ateco_code')
             ->get();
 
+        // Get products for autocomplete
+        $products = Product::query()
+            ->select('id', 'code', 'name', 'description', 'unit_price')
+            ->orderBy('name')
+            ->get();
+
         return Inertia::render('Invoices/Edit', [
             'invoice' => $invoiceDto,
             'customers' => $customers,
             'atecoCodes' => $atecoCodes,
+            'products' => $products,
             'atecoCode' => $invoice->atecoCode,
             'settings' => $settings,
         ]);

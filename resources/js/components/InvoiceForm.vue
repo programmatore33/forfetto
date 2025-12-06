@@ -54,29 +54,6 @@
           </div>
 
           <div class="grid gap-2">
-            <Label for="customer_id">Cliente</Label>
-            <select
-              id="customer_id"
-              v-model="form.customer_id"
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-              :class="{ 'border-red-500': errors.customer_id }"
-            >
-              <option :value="null">Nessuno - inserimento manuale</option>
-              <option
-                v-for="customer in customers"
-                :key="customer.id"
-                :value="customer.id"
-              >
-                {{ customer.business_name }}
-                <template v-if="customer.vat_number">
-                  - P.IVA: {{ customer.vat_number }}
-                </template>
-              </option>
-            </select>
-            <InputError :message="errors.customer_id" />
-          </div>
-
-          <div class="grid gap-2">
             <Label for="ateco_code_id">Codice ATECO *</Label>
             <select
               id="ateco_code_id"
@@ -127,6 +104,35 @@
           </CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">
+          <div class="grid gap-2">
+            <Label for="customer_search">Cerca Cliente Esistente</Label>
+            <Input
+              id="customer_search"
+              v-model="customerSearch"
+              type="text"
+              placeholder="Cerca per ragione sociale o P.IVA..."
+              :list="'customers-list'"
+              @change="onCustomerSelect"
+            />
+            <datalist id="customers-list">
+              <option
+                v-for="customer in filteredCustomers"
+                :key="customer.id"
+                :value="customer.business_name"
+                :data-id="customer.id"
+              >
+                {{ customer.business_name }}
+                <template v-if="customer.vat_number">
+                  - P.IVA: {{ customer.vat_number }}
+                </template>
+              </option>
+            </datalist>
+            <p class="text-xs text-muted-foreground">
+              Lascia vuoto per inserimento manuale o seleziona un cliente
+              esistente
+            </p>
+          </div>
+
           <div class="grid gap-2">
             <Label for="customer_business_name">Ragione Sociale *</Label>
             <Input
@@ -343,7 +349,19 @@
                         type="text"
                         placeholder="Cod."
                         class="h-9 text-sm"
+                        :list="`products-${index}`"
+                        @change="onCodeChange(index)"
                       />
+                      <datalist :id="`products-${index}`">
+                        <option
+                          v-for="product in filteredProducts(item.code)"
+                          :key="product.id"
+                          :value="product.code"
+                        >
+                          {{ product.name }} -
+                          {{ formatPrice(product.unit_price) }}
+                        </option>
+                      </datalist>
                     </td>
                     <td class="px-3 py-2">
                       <Input
@@ -619,10 +637,19 @@ interface Invoice {
   items: InvoiceItem[];
 }
 
+interface Product {
+  id: number;
+  code: string | null;
+  name: string;
+  description: string | null;
+  unit_price: number;
+}
+
 interface Props {
   invoice?: Invoice | null;
   customers: Customer[];
   atecoCodes: AtecoCode[];
+  products: Product[];
   errors?: Record<string, string>;
   processing?: boolean;
 }
@@ -671,6 +698,23 @@ const form = reactive<Invoice>({
 
 const loadingNumber = ref(false);
 const applyContributo = ref(false);
+const customerSearch = ref('');
+
+// Customer autocomplete filtering
+const filteredCustomers = computed(() => {
+  if (!customerSearch.value || customerSearch.value.length < 2) {
+    return props.customers.slice(0, 10); // Show first 10 if search is short
+  }
+  const search = customerSearch.value.toLowerCase();
+  return props.customers
+    .filter(
+      (c) =>
+        c.business_name.toLowerCase().includes(search) ||
+        c.vat_number?.toLowerCase().includes(search) ||
+        c.tax_code?.toLowerCase().includes(search),
+    )
+    .slice(0, 10);
+});
 
 // Calculated amount from items
 const calculatedAmount = computed(() => {
@@ -821,6 +865,63 @@ const removeItem = (index: number) => {
 const updateItemTotal = (index: number) => {
   const item = form.items[index];
   item.total = parseFloat((item.unit_price * item.quantity).toFixed(2));
+};
+
+// Filter products based on code input
+const filteredProducts = (code: string) => {
+  if (!code || code.length < 1) {
+    return props.products.slice(0, 10); // Show first 10 if empty
+  }
+  return props.products
+    .filter(
+      (p) =>
+        p.code?.toLowerCase().includes(code.toLowerCase()) ||
+        p.name.toLowerCase().includes(code.toLowerCase()),
+    )
+    .slice(0, 10);
+};
+
+// Format price for display
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat('it-IT', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(price);
+};
+
+// Handle code change - autofill from product
+const onCodeChange = (index: number) => {
+  const item = form.items[index];
+  const product = props.products.find((p) => p.code === item.code);
+
+  if (product) {
+    item.product_id = product.id;
+    item.description = product.name;
+    item.unit_price = product.unit_price;
+    updateItemTotal(index);
+  }
+};
+
+// Handle customer selection - autofill customer data
+const onCustomerSelect = () => {
+  const customer = props.customers.find(
+    (c) => c.business_name === customerSearch.value,
+  );
+
+  if (customer) {
+    form.customer_id = customer.id;
+    form.customer_business_name = customer.business_name;
+    form.customer_email = customer.email || '';
+    form.customer_vat_number = customer.vat_number || '';
+    form.customer_tax_code = customer.tax_code || '';
+    form.customer_address = customer.address || '';
+    form.customer_city = customer.city || '';
+    form.customer_province = customer.province || '';
+    form.customer_postal_code = customer.postal_code || '';
+    form.customer_phone = customer.phone || '';
+    form.customer_pec = customer.pec || '';
+    form.customer_sdi_code = customer.sdi_code || '';
+  }
 };
 
 const onSubmit = () => {

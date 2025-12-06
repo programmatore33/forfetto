@@ -18,9 +18,9 @@
       >
         <!-- Header with search -->
         <template #header>
-          <div class="flex items-center justify-between border-b p-4">
-            <h3 class="text-lg font-medium">{{ title }}</h3>
-            <div class="flex items-center space-x-4">
+          <div class="flex items-center justify-between gap-4 p-4">
+            <h3 class="text-base font-semibold">{{ title }}</h3>
+            <div class="flex items-center gap-3">
               <IconField v-if="searchable" icon-position="left">
                 <InputIcon>
                   <Search class="h-4 w-4" />
@@ -28,7 +28,7 @@
                 <InputText
                   v-model="searchValue"
                   :placeholder="searchPlaceholder"
-                  class="w-80"
+                  class="w-64"
                   @input="onSearch"
                 />
               </IconField>
@@ -100,19 +100,19 @@
 
         <!-- Empty state -->
         <template #empty>
-          <div class="py-12 text-center">
+          <div class="py-10 text-center">
             <component
               :is="emptyIcon"
-              class="mx-auto mb-4 h-12 w-12 text-gray-400"
+              class="mx-auto mb-3 h-10 w-10 text-muted-foreground"
             />
-            <h3 class="mb-2 text-lg font-medium text-gray-900">
+            <h3 class="mb-1.5 text-base font-semibold">
               {{ emptyTitle }}
             </h3>
-            <p class="mb-4 text-gray-500">
+            <p class="mb-4 text-sm text-muted-foreground">
               {{ emptyDescription }}
             </p>
             <slot name="empty-actions">
-              <Button v-if="createRoute" as-child>
+              <Button v-if="createRoute" as-child size="sm">
                 <Link :href="createRoute">
                   <Plus class="mr-2 h-4 w-4" />
                   {{ createButtonText }}
